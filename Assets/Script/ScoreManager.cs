@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public enum NoteType
@@ -35,6 +36,41 @@ public class ScoreManager : MonoBehaviour
 
     float[] judgmentCounter = new float[4];
 
+    public NoteType JudgNoteType(string tag)
+    {
+        if (!tag.Contains("Long"))
+        {
+            return NoteType.Normal;
+        }
+        else if (tag.Contains("Long"))
+        {
+            return NoteType.Long;
+        }
+        else
+        {
+            Debug.LogError("タグで識別できないので、Nomalを返しました。");
+            return NoteType.Normal;
+        }
+    }
+    public Judgment JudgJudgment(float judgTime)
+    {
+        if (judgTime < 0.1f)
+        {
+            return Judgment.Excellent;
+        }
+        else if (judgTime < 0.2f)
+        {
+            return Judgment.VeryGood;
+        }
+        else if (judgTime < 0.3f)
+        {
+            return Judgment.Good;
+        }
+        else
+        {
+            return Judgment.Miss;
+        }
+    }
     public void CalculateScore(NoteType noteType, Judgment judgment)
     {
         Debug.Log("CalculateScoreが呼ばれている。");

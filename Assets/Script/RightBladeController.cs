@@ -42,20 +42,26 @@ public class RightBladeController : MonoBehaviour
         }
     }
 
+    NoteType noteType;
+    Judgment judgment;
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("RightNote")
-        //|| other.gameObject.CompareTag("RightNoteLong")
-        )
+            ||
+            collision.gameObject.CompareTag("RightNoteLong"))
         {
-            float judgTime = Time.time - JudgmentZ.standardTimes[1];
-            Debug.Log($"JudgmentZ.standardTimes{JudgmentZ.standardTimes[1]}; judgTime{judgTime}");
-            //judgment判定
-            //RightNoteが基準点に触れた時間を、別のクラスから取得する。
-            //RgihtNoteと接触した時間を記録。
-            //基準となる時間 - 触れた時の時間 を絶対値に変換。
-            //
-            scoreManager.CalculateScore(NoteType.Normal, Judgment.Excellent);
+            float judgTime = Time.time - JudgmentLineZ.standardTimes[1];
+            Debug.Log($"JudgmentZ.standardTimes{JudgmentLineZ.standardTimes[1]}; judgTime{judgTime}");
+            noteType = scoreManager.JudgNoteType(collision.gameObject.tag);
+            judgment = scoreManager.JudgJudgment(judgTime);
+            scoreManager.CalculateScore(NoteType.Normal, judgment); //←Judgment型の変数
+        }
+    }
+    private void OnCollisionStay(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("RihgtNoteLong"))
+        {
+            scoreManager.CalculateScore(NoteType.Long, judgment);
         }
     }
 }

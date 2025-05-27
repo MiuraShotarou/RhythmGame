@@ -56,7 +56,7 @@ public class BallController : MonoBehaviour
         }
         else if (Input.GetButtonDown("Test")) //試験的
         {
-            Debug.Log(scoreManager.totalScore);
+            Debug.Log(scoreManager.TotalScore);
         }
 
         if (transform.position.x == 0
@@ -120,7 +120,7 @@ public class BallController : MonoBehaviour
             //呼び出すメソッドには、ノーツの種類、ジャッジメントの種類を引数に渡せば良い。
         }
 
-        Debug.Log(rigidbody.velocity);
+        //Debug.Log(rigidbody.velocity);
     }
 
     IEnumerator OnBounceBallRightBlade()

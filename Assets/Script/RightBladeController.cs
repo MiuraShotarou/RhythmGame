@@ -4,6 +4,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.SocialPlatforms;
+using UnityEngine.UIElements;
 
 public class RightBladeController : MonoBehaviour
 {
@@ -46,22 +47,72 @@ public class RightBladeController : MonoBehaviour
     Judgment judgment;
     private void OnCollisionEnter(Collision collision)
     {
+        Debug.Log($"ê⁄êGÇ∑ÇÈ{rigidbody.velocity}");
+
         if (collision.gameObject.CompareTag("RightNote")
             ||
             collision.gameObject.CompareTag("RightNoteLong"))
         {
-            float judgTime = Time.time - JudgmentLineZ.standardTimes[1];
-            Debug.Log($"JudgmentZ.standardTimes{JudgmentLineZ.standardTimes[1]}; judgTime{judgTime}");
-            noteType = scoreManager.JudgNoteType(collision.gameObject.tag);
-            judgment = scoreManager.JudgJudgment(judgTime);
-            scoreManager.CalculateScore(NoteType.Normal, judgment); //Å©Judgmentå^ÇÃïœêî
+            if (!collision.gameObject.GetComponent<NoteController>().isCollision)
+            {
+                float judgTime = Time.time - JudgmentLineZ.standardTimes[1];
+                Debug.Log($"JudgmentZ.standardTimes{JudgmentLineZ.standardTimes[1]}; judgTime{judgTime}");
+                collision.gameObject.GetComponent<NoteController>().isCollision = true;
+                noteType = scoreManager.JudgNoteType(collision.gameObject.tag);
+                judgment = scoreManager.JudgJudgment(judgTime);
+                scoreManager.CalculateScore(noteType, judgment); //Å©Judgmentå^ÇÃïœêî
+            }
         }
     }
     private void OnCollisionStay(Collision collision)
     {
-        if (collision.gameObject.CompareTag("RihgtNoteLong"))
-        {
-            scoreManager.CalculateScore(NoteType.Long, judgment);
+        if (collision.gameObject.CompareTag("RightNote")
+            ||
+            collision.gameObject.CompareTag("RightNoteLong"))
+        { 
+            //rigidbody.velocity = Vector3.zero;
+            if (collision.gameObject.CompareTag("RightNoteLong")
+                &&
+                !collision.gameObject.GetComponent<NoteController>().isCollisionStay)
+            {
+                StartCoroutine(LongNoteManager(collision.gameObject));
+                noteType = scoreManager.JudgNoteType(collision.gameObject.tag);
+                scoreManager.CalculateScore(noteType, judgment);
+            }
         }
+    }
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("RightNote")
+            ||
+            collision.gameObject.CompareTag("RightNoteLong"))
+        {
+            //rigidbody.velocity = Vector3.zero;
+            //rigidbody.AddForce((transform.up * -1) * slidePower, ForceMode.Force); //Ç±Ç±Ç≈AddforceÇµÇƒÇ¢ÇÈÇÃÇ™ó«Ç≠Ç»Ç¢Ç©Ç‡ÅB
+            //StartCoroutine(PositionLog());
+        }
+    }
+
+    IEnumerator LongNoteManager(GameObject noteLong)
+    {
+        noteLong.GetComponent<NoteController>().isCollisionStay = true;
+        yield return new WaitForSeconds(0.1f);
+        noteLong.GetComponent<NoteController>().isCollisionStay = false;
+    }
+
+    IEnumerator PositionLog()
+    {
+        float counter = 0f;
+        float countMax = 50f;
+
+        Debug.Log($"ó£ÇÍÇÈ{rigidbody.velocity}");
+
+        while (counter < countMax)
+        {
+            //Debug.Log($"Position{transform.position}"); //
+            //counter++;
+        }
+
+        yield return null;
     }
 }

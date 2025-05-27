@@ -28,7 +28,20 @@ public class ScoreManager : MonoBehaviour
 {
     float ownershipScore; //リザルト画面・曲のセレクト画面に使用。
 
-    public float totalScore; //リザルト画面に使用。
+    //フィールド変数の定義
+    float _totalScore;
+    public float TotalScore //リザルト画面に使用。
+    {
+        get {return _totalScore;}
+        set
+        {
+            if (_totalScore != _totalScore + value)
+            {
+                _totalScore += value;
+                Debug.Log($"スコアに加点。totalScore{_totalScore}"); //スコアがちゃんと加算されているかの確認
+            }
+        }
+    }
 
     float[] noteScore = { 10f, 1f }; //長押し系ノーツは10/10 → 1score / 1second
     float[] judgmentMultiplier = { 0f, 0.5f, 1.0f, 1.5f };
@@ -105,7 +118,7 @@ public class ScoreManager : MonoBehaviour
         if (noteIndex != -1
             && judgmentIndex != -1)
         {
-            totalScore += noteScore[noteIndex] * judgmentMultiplier[judgmentIndex]; //スコアの加算
+            TotalScore += noteScore[noteIndex] * judgmentMultiplier[judgmentIndex]; //スコアの加算
             judgmentCounter[judgmentIndex]++; 　　　　　　　　　　　　　　　　　　　//ノーツ評価をカテゴリ別にカウントする。
         }
         else
@@ -118,9 +131,7 @@ public class ScoreManager : MonoBehaviour
         Application.targetFrameRate = 60;
     }
 
-    // Update is called once per frame
     float deltaTime = 0.0f;
-
     void Update()
     {
         deltaTime += (Time.deltaTime - deltaTime) * 0.1f;

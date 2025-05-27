@@ -83,7 +83,7 @@ public class HealthManager : MonoBehaviour
             roopCount++;
             timer = Time.time - startTime;
             //Debug.Log(cameraTransform.position);
-            Debug.Log(timer);
+            //Debug.Log(timer);
             yield return null;
         }
 

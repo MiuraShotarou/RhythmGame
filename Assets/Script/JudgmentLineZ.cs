@@ -2,12 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class JudgmentZ : MonoBehaviour
+public class JudgmentLineZ : MonoBehaviour
 {
+    [SerializeField] Transform judgmentTransform;
+
     public static float[] standardTimes = new float[8];
 
-    [SerializeField] Transform judgmentTransform;
     float toleranceZ;
+    bool isChecked = false;
 
     void Start()
     {
@@ -15,10 +17,11 @@ public class JudgmentZ : MonoBehaviour
     }
     void Update()
     {
-        if (transform.position.z <= (toleranceZ + 0.005f)
-        &&
-        transform.position.z >= (toleranceZ - 0.005f))
+        if (transform.position.z <= toleranceZ
+            &&
+            !isChecked)
         {
+            isChecked = true;
             //Debug.Log("JudgmentZにあたってるよー");
             switch (gameObject.tag) //noteのタグを取得。
             {
@@ -49,6 +52,5 @@ public class JudgmentZ : MonoBehaviour
                     break;
             }
         }
-
     }
 }

@@ -12,6 +12,8 @@ public class RightBladeController : MonoBehaviour
     Rigidbody rigidbody;
 
     float slidePower = 700f;
+
+    //bool testBool = false;
     void Start()
     {
         rigidbody = GetComponent<Rigidbody>();
@@ -20,10 +22,14 @@ public class RightBladeController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Vector3 pos = transform.position;
-        pos.x = Mathf.Clamp(pos.x, 0.0265f, 0.20404f);
-        pos.y = Mathf.Clamp(pos.y, 0.83f, 0.97839f);
-        transform.position = pos;
+  
+        //if (!testBool)
+        //{
+            Vector3 pos = transform.position;
+            pos.x = Mathf.Clamp(pos.x, 0.0265f, 0.20404f);
+            pos.y = Mathf.Clamp(pos.y, 0.83f, 0.97839f);
+            transform.position = pos;
+        //}
 
         if ((transform.position.x == 0.2f && transform.position.y == 0.975f)
             || (transform.position.x == 0.0265f && transform.position.y == 0.83f))
@@ -53,6 +59,15 @@ public class RightBladeController : MonoBehaviour
             ||
             collision.gameObject.CompareTag("RightNoteLong"))
         {
+            //testBool = true;
+
+            //if (testBool)
+            //{
+                Vector3 pos = transform.position;
+                pos.x = Mathf.Clamp(pos.x, 0.053f, 0.20404f);
+                pos.y = Mathf.Clamp(pos.y, 0.86f, 0.853f);
+                transform.position = pos;
+            //}
             if (!collision.gameObject.GetComponent<NoteController>().isCollision)
             {
                 float judgTime = Time.time - JudgmentLineZ.standardTimes[1];
@@ -69,8 +84,14 @@ public class RightBladeController : MonoBehaviour
         if (collision.gameObject.CompareTag("RightNote")
             ||
             collision.gameObject.CompareTag("RightNoteLong"))
-        { 
-            //rigidbody.velocity = Vector3.zero;
+        {
+            //if (testBool)
+            //{
+                Vector3 pos = transform.position;
+                pos.x = Mathf.Clamp(pos.x, 0.05375149f, 0.20404f);
+                pos.y = Mathf.Clamp(pos.y, 0.86f, 0.85228f);
+                transform.position = pos;
+            //}
             if (collision.gameObject.CompareTag("RightNoteLong")
                 &&
                 !collision.gameObject.GetComponent<NoteController>().isCollisionStay)
@@ -87,6 +108,7 @@ public class RightBladeController : MonoBehaviour
             ||
             collision.gameObject.CompareTag("RightNoteLong"))
         {
+            //testBool = false;
             //rigidbody.velocity = Vector3.zero;
             //rigidbody.AddForce((transform.up * -1) * slidePower, ForceMode.Force); //ここでAddforceしているのが良くないかも。
             //StartCoroutine(PositionLog());
@@ -96,8 +118,10 @@ public class RightBladeController : MonoBehaviour
     IEnumerator LongNoteManager(GameObject noteLong)
     {
         noteLong.GetComponent<NoteController>().isCollisionStay = true;
-        yield return new WaitForSeconds(0.1f);
+        Debug.Log("isCollisionStay = true");
+        yield return new WaitForSeconds(0.28f); //判定時間より短くする必要あり。→　構造の思考し直し。
         noteLong.GetComponent<NoteController>().isCollisionStay = false;
+        Debug.Log("isCollisionStay = false");
     }
 
     IEnumerator PositionLog()

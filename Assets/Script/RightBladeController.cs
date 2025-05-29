@@ -96,6 +96,10 @@ public class RightBladeController : MonoBehaviour
             ||
             collision.gameObject.CompareTag("RightNoteLong"))
         {
+            Vector3 pos = transform.position;
+            pos.x = Mathf.Clamp(pos.x, 0.05375149f, 0.20404f);
+            pos.y = Mathf.Clamp(pos.y, 0.86f, 0.85228f);
+            transform.position = pos;
             //testBool = false;
             //rigidbody.velocity = Vector3.zero;
             //rigidbody.AddForce((transform.up * -1) * slidePower, ForceMode.Force); //Ç±Ç±Ç≈AddforceÇµÇƒÇ¢ÇÈÇÃÇ™ó«Ç≠Ç»Ç¢Ç©Ç‡ÅB

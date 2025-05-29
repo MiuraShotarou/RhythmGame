@@ -67,15 +67,15 @@ public class ScoreManager : MonoBehaviour
     }
     public Judgment JudgJudgment(float judgTime)
     {
-        if (judgTime < 1f)
+        if (judgTime < 0.055f) //0.02f‚ÌŠÔ‚É
         {
             return Judgment.Excellent;
         }
-        else if (judgTime < 2f)
+        else if (judgTime < 0.085f) //0.05f‚ÌŠÔ‚É
         {
             return Judgment.VeryGood;
         }
-        else if (judgTime < 3f)
+        else if (judgTime < 0.115f) //0.08f‚ÌŠÔ‚É
         {
             return Judgment.Good;
         }

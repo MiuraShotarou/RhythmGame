@@ -11,27 +11,32 @@ public class JudgmentLineZ : MonoBehaviour
     float toleranceZ;
     bool isChecked = false;
 
-    void Start()
+    //void Start()
+    //{
+    //toleranceZ = judgmentTransform.transform.position.z;
+    //}
+    //void Update()
+    //{
+    //if (transform.position.z <= toleranceZ
+    //&&
+    //!isChecked)
+    private void OnTriggerEnter(Collider other)
     {
-        toleranceZ = judgmentTransform.transform.position.z;
-    }
-    void Update()
-    {
-        if (transform.position.z <= toleranceZ
+        if (other.gameObject.CompareTag("JudgmentLineZ")
             &&
             !isChecked)
         {
-            isChecked = true;
-            //Debug.Log("JudgmentZにあたってるよー");
+            isChecked = true; //いらないかも
+            Debug.Log("JudgmentZにあたってるよー");
             switch (gameObject.tag) //noteのタグを取得。
             {
                 case ("MainNote"):
                     standardTimes[0] = Time.time;
                     break;
                 case ("RightNote"):
-            Debug.Log("RightNoteが起動している");
+                    Debug.Log("RightNoteが起動している");
                     standardTimes[1] = Time.time;
-                break;
+                    break;
                 case ("Leftnote"):
                     standardTimes[2] = Time.time;
                     break;
@@ -42,15 +47,20 @@ public class JudgmentLineZ : MonoBehaviour
                     standardTimes[4] = Time.time;
                     break;
                 case ("MainNoteLong"):
-                    standardTimes[5] = Time.time;
+                    standardTimes[0] = Time.time;
                     break;
                 case ("RightNoteLong"):
-                    standardTimes[6] = Time.time;
+                    standardTimes[1] = Time.time;
                     break;
                 case ("LeftNotelong"):
-                    standardTimes[7] = Time.time;
+                    standardTimes[2] = Time.time;
                     break;
             }
+        }
+
+        if (other.gameObject.CompareTag("MissLine"))
+        {
+            Debug.Log($"MissTime{Time.time - standardTimes[1]}");
         }
     }
 }

@@ -204,7 +204,7 @@ GameObject:
   - component: {fileID: 183895593}
   m_Layer: 0
   m_Name: JudgmentLineZ
-  m_TagString: Untagged
+  m_TagString: JudgmentLineZ
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -250,7 +250,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 983af024a4d897a4bb42bac0c751d471, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -289,7 +289,7 @@ Transform:
   m_GameObject: {fileID: 183895592}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.32, z: -0.035}
+  m_LocalPosition: {x: 0, y: 1, z: -0.035}
   m_LocalScale: {x: 100, y: 1, z: 0.001}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1905,8 +1905,8 @@ GameObject:
   - component: {fileID: 981969202}
   - component: {fileID: 981969201}
   m_Layer: 0
-  m_Name: MIssLineZ
-  m_TagString: Untagged
+  m_Name: MissLineZ
+  m_TagString: MissLine
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1926,7 +1926,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -1991,7 +1991,7 @@ Transform:
   m_GameObject: {fileID: 981969200}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.32, z: -0.15}
+  m_LocalPosition: {x: 0, y: 1, z: -0.15}
   m_LocalScale: {x: 100, y: 1, z: 0.001}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2137,7 +2137,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!54 &1100441522
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2245,7 +2245,7 @@ Transform:
   m_GameObject: {fileID: 1100441521}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: -0.42261827, w: 0.9063079}
-  m_LocalPosition: {x: 0.0088, y: 0.8132, z: -0.1}
+  m_LocalPosition: {x: 0.0088, y: 0.8132, z: 5}
   m_LocalScale: {x: 0.005, y: 0.01, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2272,7 +2272,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1100441521}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 235c7a22fbeb68846a7e48796f56306c, type: 3}
   m_Name: 
@@ -3698,7 +3698,7 @@ Transform:
   m_GameObject: {fileID: 1959330898}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: -0.42261827, w: 0.9063079}
-  m_LocalPosition: {x: 0.0088, y: 0.8132, z: 5}
+  m_LocalPosition: {x: 0.0088, y: 0.8132, z: 10}
   m_LocalScale: {x: 0.005, y: 0.01, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children:

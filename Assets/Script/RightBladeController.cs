@@ -22,14 +22,10 @@ public class RightBladeController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-  
-        //if (!testBool)
-        //{
-            Vector3 pos = transform.position;
-            pos.x = Mathf.Clamp(pos.x, 0.0265f, 0.20404f);
-            pos.y = Mathf.Clamp(pos.y, 0.83f, 0.97839f);
-            transform.position = pos;
-        //}
+        Vector3 pos = transform.position;
+        pos.x = Mathf.Clamp(pos.x, 0.0265f, 0.20404f);
+        pos.y = Mathf.Clamp(pos.y, 0.83f, 0.97839f);
+        transform.position = pos;
 
         if ((transform.position.x == 0.2f && transform.position.y == 0.975f)
             || (transform.position.x == 0.0265f && transform.position.y == 0.83f))
@@ -53,24 +49,18 @@ public class RightBladeController : MonoBehaviour
     Judgment judgment;
     private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log($"接触する{rigidbody.velocity}");
-
         if (collision.gameObject.CompareTag("RightNote")
             ||
             collision.gameObject.CompareTag("RightNoteLong"))
         {
-            //testBool = true;
-
-            //if (testBool)
-            //{
-                Vector3 pos = transform.position;
-                pos.x = Mathf.Clamp(pos.x, 0.053f, 0.20404f);
-                pos.y = Mathf.Clamp(pos.y, 0.86f, 0.853f);
-                transform.position = pos;
-            //}
+            Vector3 pos = transform.position;
+            pos.x = Mathf.Clamp(pos.x, 0.053f, 0.20404f);
+            pos.y = Mathf.Clamp(pos.y, 0.86f, 0.853f);
+            transform.position = pos;
             if (!collision.gameObject.GetComponent<NoteController>().isCollision)
             {
                 float judgTime = Time.time - JudgmentLineZ.standardTimes[1];
+
                 Debug.Log($"JudgmentZ.standardTimes{JudgmentLineZ.standardTimes[1]}; judgTime{judgTime}");
                 collision.gameObject.GetComponent<NoteController>().isCollision = true;
                 noteType = scoreManager.JudgNoteType(collision.gameObject.tag);
@@ -85,13 +75,10 @@ public class RightBladeController : MonoBehaviour
             ||
             collision.gameObject.CompareTag("RightNoteLong"))
         {
-            //if (testBool)
-            //{
-                Vector3 pos = transform.position;
-                pos.x = Mathf.Clamp(pos.x, 0.05375149f, 0.20404f);
-                pos.y = Mathf.Clamp(pos.y, 0.86f, 0.85228f);
-                transform.position = pos;
-            //}
+            Vector3 pos = transform.position;
+            pos.x = Mathf.Clamp(pos.x, 0.05375149f, 0.20404f);
+            pos.y = Mathf.Clamp(pos.y, 0.86f, 0.85228f);
+            transform.position = pos;
             if (collision.gameObject.CompareTag("RightNoteLong")
                 &&
                 !collision.gameObject.GetComponent<NoteController>().isCollisionStay)
@@ -99,6 +86,7 @@ public class RightBladeController : MonoBehaviour
                 StartCoroutine(LongNoteManager(collision.gameObject));
                 noteType = scoreManager.JudgNoteType(collision.gameObject.tag);
                 scoreManager.CalculateScore(noteType, judgment);
+                Debug.Log($"Notetype{noteType}, Judgment{judgment}");
             }
         }
     }
@@ -118,10 +106,8 @@ public class RightBladeController : MonoBehaviour
     IEnumerator LongNoteManager(GameObject noteLong)
     {
         noteLong.GetComponent<NoteController>().isCollisionStay = true;
-        Debug.Log("isCollisionStay = true");
-        yield return new WaitForSeconds(0.28f); //判定時間より短くする必要あり。→　構造の思考し直し。
+        yield return new WaitForSeconds(0.0166f);                                //ほぼワンフレームにつき加点
         noteLong.GetComponent<NoteController>().isCollisionStay = false;
-        Debug.Log("isCollisionStay = false");
     }
 
     IEnumerator PositionLog()

@@ -38,13 +38,13 @@ public class ScoreManager : MonoBehaviour
             if (_totalScore != _totalScore + value)
             {
                 _totalScore += value;
-                Debug.Log($"スコアに加点。totalScore{_totalScore}"); //スコアがちゃんと加算されているかの確認
+                Debug.Log($"スコアに加点。value{value}, totalScore{_totalScore}"); //スコアがちゃんと加算されているかの確認
             }
         }
     }
 
     float[] noteScore = { 10f, 1f }; //長押し系ノーツは10/10 → 1score / 1second
-    float[] judgmentMultiplier = { 0f, 0.5f, 1.0f, 1.5f };
+    float[] judgmentMultiplier = { 0f, 0.8f, 1.0f, 1.2f };
     float[] rankMultiplier = { 0.8f, 1.0f, 1.3f, 1.8f, 2.0f };
 
     float[] judgmentCounter = new float[4];
@@ -67,15 +67,15 @@ public class ScoreManager : MonoBehaviour
     }
     public Judgment JudgJudgment(float judgTime)
     {
-        if (judgTime < 0.1f)
+        if (judgTime < 1f)
         {
             return Judgment.Excellent;
         }
-        else if (judgTime < 0.2f)
+        else if (judgTime < 2f)
         {
             return Judgment.VeryGood;
         }
-        else if (judgTime < 0.3f)
+        else if (judgTime < 3f)
         {
             return Judgment.Good;
         }
@@ -118,7 +118,7 @@ public class ScoreManager : MonoBehaviour
         if (noteIndex != -1
             && judgmentIndex != -1)
         {
-            TotalScore += noteScore[noteIndex] * judgmentMultiplier[judgmentIndex]; //スコアの加算
+            TotalScore = noteScore[noteIndex] * judgmentMultiplier[judgmentIndex]; //スコアの加算
             judgmentCounter[judgmentIndex]++; 　　　　　　　　　　　　　　　　　　　//ノーツ評価をカテゴリ別にカウントする。
         }
         else

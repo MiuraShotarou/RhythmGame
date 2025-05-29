@@ -16,6 +16,7 @@ public class ScoreText : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        textMeshProUGUI.text = $"Score {scoreManager.TotalScore}";
+        string showScore = scoreManager.TotalScore.ToString("F1");
+        textMeshProUGUI.text = $"Score {showScore}";
     }
 }

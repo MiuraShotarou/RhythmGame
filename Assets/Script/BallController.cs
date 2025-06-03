@@ -11,10 +11,12 @@ public class BallController : MonoBehaviour
     [SerializeField] HealthManager healthManager;
     Rigidbody rigidbody;
     float pushPower = 3f;
-    float miniY = 
+    float miniY = 0.82f;
 
     bool ischecked = false;
     bool isInvalid = true;
+
+    bool isNotDamage = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -25,7 +27,7 @@ public class BallController : MonoBehaviour
     void Update()
     {
         Vector3 pos = transform.position;
-        pos.y = Mathf.Clamp(pos.y, 0.82f, 100f);
+        pos.y = Mathf.Clamp(pos.y, miniY, 100f);
         transform.position = pos;
     }
 
@@ -103,9 +105,11 @@ public class BallController : MonoBehaviour
             healthManager.Damage();
         }
 
-        if (other.gameObject.CompareTag("Stage"))
+        if (other.gameObject.CompareTag("Stage")
+            &&
+            !isNotDamage)
         {
-
+            Debug.Log("Stage‚É“–‚½‚Á‚Ä‚¢‚é");
             healthManager.Damage();
         }
 
@@ -113,9 +117,9 @@ public class BallController : MonoBehaviour
             ||
             other.gameObject.CompareTag("MainNoteLong"))
         {
-            Vector3 pos = transform.position;
-            pos.y = Mathf.Clamp(pos.y, 0.85f, 100f);
-            transform.position = pos;
+            isNotDamage = true;
+            miniY = 0.85f;
+
             if (!other.gameObject.GetComponent<NoteController>().isCollision)
             {
                 float judgTime = Time.time - JudgmentLineZ.standardTimes[0];
@@ -134,9 +138,9 @@ public class BallController : MonoBehaviour
            &&
            !other.gameObject.GetComponent<NoteController>().isCollisionStay)
         {
-            Vector3 pos = transform.position;
-            pos.y = Mathf.Clamp(pos.y, 0.85f, 100f);
-            transform.position = pos;
+            //Vector3 pos = transform.position;
+            //pos.y = Mathf.Clamp(pos.y, 0.85f, 100f);
+            //transform.position = pos;
             StartCoroutine(LongNoteManager(other.gameObject));
             noteType = scoreManager.JudgNoteType(other.gameObject.tag);
             scoreManager.CalculateScore(noteType, judgment);
@@ -150,9 +154,12 @@ public class BallController : MonoBehaviour
             ||
             other.gameObject.CompareTag("MainNoteLong"))
         {
-            Vector3 pos = transform.position;
-            pos.y = Mathf.Clamp(pos.y, 0.85f, 100f);
-            transform.position = pos;
+            miniY = 0.82f;
+
+            isNotDamage = false;
+            //Vector3 pos = transform.position;
+            //pos.y = Mathf.Clamp(pos.y, 0.85f, 100f);
+            //transform.position = pos;
         }
     }
 

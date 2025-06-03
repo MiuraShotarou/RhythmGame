@@ -4,22 +4,10 @@ using UnityEngine;
 
 public class JudgmentLineZ : MonoBehaviour
 {
-    [SerializeField] Transform judgmentTransform;
-
     public static float[] standardTimes = new float[8];
 
-    float toleranceZ;
     bool isChecked = false;
 
-    //void Start()
-    //{
-    //toleranceZ = judgmentTransform.transform.position.z;
-    //}
-    //void Update()
-    //{
-    //if (transform.position.z <= toleranceZ
-    //&&
-    //!isChecked)
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("JudgmentLineZ")
@@ -34,7 +22,6 @@ public class JudgmentLineZ : MonoBehaviour
                     standardTimes[0] = Time.time;
                     break;
                 case ("RightNote"):
-                    Debug.Log("RightNote‚ª‹N“®‚µ‚Ä‚¢‚é");
                     standardTimes[1] = Time.time;
                     break;
                 case ("Leftnote"):
@@ -58,9 +45,9 @@ public class JudgmentLineZ : MonoBehaviour
             }
         }
 
-        if (other.gameObject.CompareTag("MissLine"))
-        {
-            Debug.Log($"MissTime{Time.time - standardTimes[1]}");
-        }
+        //if (other.gameObject.CompareTag("MissLine"))
+        //{
+            //Debug.Log($"MissTime{Time.time - standardTimes[1]}");
+        //}
     }
 }

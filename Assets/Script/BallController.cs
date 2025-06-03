@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.ProBuilder;
+using static TreeEditor.TreeEditorHelper;
 
 public class BallController : MonoBehaviour
 {
@@ -10,7 +11,7 @@ public class BallController : MonoBehaviour
     [SerializeField] HealthManager healthManager;
     Rigidbody rigidbody;
     float pushPower = 3f;
-    //returnPower検討。
+    float miniY = 
 
     bool ischecked = false;
     bool isInvalid = true;
@@ -28,13 +29,8 @@ public class BallController : MonoBehaviour
         transform.position = pos;
     }
 
-    private void FixedUpdate()
+    void FixedUpdate()
     {
-        if (transform.position.y == 0.9f)
-        {
-            //rigidbody.velocity = Vector3.zero;
-        }
-
         if (Input.GetButtonDown("PushBall")
             && isInvalid)
         {
@@ -77,6 +73,8 @@ public class BallController : MonoBehaviour
         }
     }
 
+    NoteType noteType;
+    Judgment judgment;
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("RightBlade"))
@@ -111,17 +109,53 @@ public class BallController : MonoBehaviour
             healthManager.Damage();
         }
 
-        if (other.gameObject.CompareTag("MainNote"))
+        if (other.gameObject.CompareTag("MainNote")
+            ||
+            other.gameObject.CompareTag("MainNoteLong"))
         {
-            Debug.Log("MainNote");
-            //judgment判定の処理を書く。ScorManagerには「判定」の変数と「ノーツの種類」を渡す。
-            //judgment判定 → judgment 毎にjudgmentTypeを引数に入れてメソッドを起動。
-            //longNoteの場合、Stay 関数に切り替えれば自然とスコアのフレーム数における加算が行える。
-            //呼び出すメソッドには、ノーツの種類、ジャッジメントの種類を引数に渡せば良い。
-        }
+            Vector3 pos = transform.position;
+            pos.y = Mathf.Clamp(pos.y, 0.85f, 100f);
+            transform.position = pos;
+            if (!other.gameObject.GetComponent<NoteController>().isCollision)
+            {
+                float judgTime = Time.time - JudgmentLineZ.standardTimes[0];
 
-        //Debug.Log(rigidbody.velocity);
+                Debug.Log($"JudgmentZ.standardTimes{JudgmentLineZ.standardTimes[0]}; judgTime{judgTime}");
+                other.gameObject.GetComponent<NoteController>().isCollision = true;
+                noteType = scoreManager.JudgNoteType(other.gameObject.tag);
+                judgment = scoreManager.JudgJudgment(judgTime);
+                scoreManager.CalculateScore(noteType, judgment);
+            }
+        }
     }
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.gameObject.CompareTag("MainNoteLong")
+           &&
+           !other.gameObject.GetComponent<NoteController>().isCollisionStay)
+        {
+            Vector3 pos = transform.position;
+            pos.y = Mathf.Clamp(pos.y, 0.85f, 100f);
+            transform.position = pos;
+            StartCoroutine(LongNoteManager(other.gameObject));
+            noteType = scoreManager.JudgNoteType(other.gameObject.tag);
+            scoreManager.CalculateScore(noteType, judgment);
+            //Debug.Log($"Notetype{noteType}, Judgment{judgment}");
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.CompareTag("MainNote")
+            ||
+            other.gameObject.CompareTag("MainNoteLong"))
+        {
+            Vector3 pos = transform.position;
+            pos.y = Mathf.Clamp(pos.y, 0.85f, 100f);
+            transform.position = pos;
+        }
+    }
+
 
     IEnumerator OnBounceBallRightBlade()
     {
@@ -151,6 +185,13 @@ public class BallController : MonoBehaviour
         {
             isInvalid = true;
         }
+    }
+
+    IEnumerator LongNoteManager(GameObject noteLong)
+    {
+        noteLong.GetComponent<NoteController>().isCollisionStay = true;
+        yield return new WaitForSeconds(0.0166f);                                //ほぼワンフレームにつき加点
+        noteLong.GetComponent<NoteController>().isCollisionStay = false;
     }
 }
 

@@ -24,6 +24,7 @@ TagManager:
   - MissLine
   - GravityDevice
   - AntiGravityDevice
+  - RightRightNote
   layers:
   - Default
   - TransparentFX

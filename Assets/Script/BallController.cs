@@ -111,6 +111,14 @@ public class BallController : MonoBehaviour
                 scoreManager.CalculateScore(noteType, judgment);
             }
         }
+        else if (other.gameObject.CompareTag("RightRightNote"))
+        {
+            Debug.Log("RightRightNoteÇ…ìñÇΩÇ¡ÇƒÇ¢ÇÈ");
+            rigidbody.velocity = Vector3.zero;
+            Vector3 forceDirection = new Vector3(-1f, 0.1f, 0f);
+            rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse); //ìØÇ∂ë¨ìxÇæÇ∆Ç‹Ç∏Ç¢Ç©Ç‡ÇµÇÍÇ»Ç¢ÅB
+            StartCoroutine(ActiveGravityAndAntiGravity(0.1f)); //à⁄êA
+        }
         else if (other.gameObject.CompareTag("RightDamageBlock"))
         {
             rigidbody.velocity = Vector3.zero;

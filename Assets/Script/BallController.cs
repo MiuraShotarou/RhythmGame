@@ -86,47 +86,14 @@ public class BallController : MonoBehaviour
 
             ischecked = true;
         }
-
-        if (other.gameObject.CompareTag("LeftBlock"))
+        else if (other.gameObject.CompareTag("LeftBlade"))
         {
-            //ischecked = true;
-            rigidbody.velocity = Vector3.zero;
-            Vector3 forceDirection = new Vector3(1f, 0.1f, 0f);
-            rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
-            StartCoroutine(ActiveGravityAndAntiGravity(0.1f)); //à⁄êA
-        }
-        
-        if (other.gameObject.CompareTag("LeftDamageBlock"))
-        {
-            rigidbody.velocity = Vector3.zero;
-            Vector3 forceDirection = new Vector3(1f, 0.1f, 0f);
-            rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse); //ìØÇ∂ë¨ìxÇæÇ∆Ç‹Ç∏Ç¢Ç©Ç‡ÇµÇÍÇ»Ç¢ÅB
-            StartCoroutine(ActiveGravityAndAntiGravity(0.2f)); //à⁄êA
-            healthManager.Damage();
-        }
+            Debug.Log("ê⁄êGÅELeftBlade");
+            StartCoroutine(OnBounceBallLeftBlade());
 
-        if (other.gameObject.CompareTag("RightDamageBlock"))
-        {
-            rigidbody.velocity = Vector3.zero;
-            Vector3 forceDirection = new Vector3(1f, 0.1f, 0f);
-            rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse); //ìØÇ∂ë¨ìxÇæÇ∆Ç‹Ç∏Ç¢Ç©Ç‡ÇµÇÍÇ»Ç¢ÅB
-            StartCoroutine(ActiveGravityAndAntiGravity(0.2f)); //à⁄êA
-            healthManager.Damage();
+            ischecked = true;
         }
-
-        if (other.gameObject.CompareTag("Stage")
-            ||
-            other.gameObject.CompareTag("RightDamageBlock")
-            ||
-            other.gameObject.CompareTag("LeftDamageBlock")
-            &&
-            !isNotDamage)
-        {
-            Debug.Log("StageÇ»Ç«Ç…ìñÇΩÇ¡ÇƒÇ¢ÇÈ");
-            healthManager.Damage();
-        }
-
-        if (other.gameObject.CompareTag("MainNote")
+        else if (other.gameObject.CompareTag("MainNote")
             ||
             other.gameObject.CompareTag("MainNoteLong"))
         {
@@ -144,6 +111,29 @@ public class BallController : MonoBehaviour
                 scoreManager.CalculateScore(noteType, judgment);
             }
         }
+        else if (other.gameObject.CompareTag("RightDamageBlock"))
+        {
+            rigidbody.velocity = Vector3.zero;
+            Vector3 forceDirection = new Vector3(-1f, 0.1f, 0f);
+            rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse); //ìØÇ∂ë¨ìxÇæÇ∆Ç‹Ç∏Ç¢Ç©Ç‡ÇµÇÍÇ»Ç¢ÅB
+            StartCoroutine(ActiveGravityAndAntiGravity(0.2f)); //à⁄êA
+            healthManager.Damage();
+        }
+        else if (other.gameObject.CompareTag("LeftDamageBlock"))
+        {
+            rigidbody.velocity = Vector3.zero;
+            Vector3 forceDirection = new Vector3(1f, 0.1f, 0f);
+            rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse); //ìØÇ∂ë¨ìxÇæÇ∆Ç‹Ç∏Ç¢Ç©Ç‡ÇµÇÍÇ»Ç¢ÅB
+            StartCoroutine(ActiveGravityAndAntiGravity(0.2f)); //à⁄êA
+            healthManager.Damage();
+        }
+        else if (other.gameObject.GetComponent<MeshRenderer>().enabled != false
+            &&
+            !isNotDamage)
+        {
+            Debug.Log($"{other.gameObject}Ç»Ç«Ç…ìñÇΩÇ¡ÇƒÇ¢ÇÈ");
+            healthManager.Damage();
+        }
     }
     private void OnTriggerStay(Collider other)
     {
@@ -160,7 +150,6 @@ public class BallController : MonoBehaviour
             //Debug.Log($"Notetype{noteType}, Judgment{judgment}");
         }
     }
-
     private void OnTriggerExit(Collider other)
     {
         if (other.gameObject.CompareTag("MainNote")
@@ -185,6 +174,17 @@ public class BallController : MonoBehaviour
 
         rigidbody.velocity = Vector3.zero;
         Vector3 forceDirection = new Vector3(-1f, 0.8f, 0f).normalized;
+        rigidbody.AddForce(forceDirection * pushPower, ForceMode.Impulse);
+        yield return null;
+    }
+    IEnumerator OnBounceBallLeftBlade()
+    {
+        isInvalid = false;
+        GravityDeviceControler.isGravity = false;
+        AntiGravityDeviceControler.isAntiGravity = false;
+
+        rigidbody.velocity = Vector3.zero;
+        Vector3 forceDirection = new Vector3(1f, 0.8f, 0f).normalized;
         rigidbody.AddForce(forceDirection * pushPower, ForceMode.Impulse);
         yield return null;
     }

@@ -22,6 +22,8 @@ TagManager:
   - LeftNoteLong
   - JudgmentLineZ
   - MissLine
+  - GravityDevice
+  - AntiGravityDevice
   layers:
   - Default
   - TransparentFX

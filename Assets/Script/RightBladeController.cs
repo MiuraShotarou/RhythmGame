@@ -9,6 +9,8 @@ using UnityEngine.UIElements;
 public class RightBladeController : MonoBehaviour
 {
     [SerializeField] ScoreManager scoreManager;
+    [SerializeField] GameObject sparksEffect;
+    //[SerializeField] ParticleSystem particleSystem;
     Rigidbody rigidbody;
 
     float slidePower = 700f;
@@ -57,6 +59,8 @@ public class RightBladeController : MonoBehaviour
             pos.x = Mathf.Clamp(pos.x, 0.053f, 0.20404f);
             pos.y = Mathf.Clamp(pos.y, 0.86f, 0.853f);
             transform.position = pos;
+            sparksEffect.SetActive(true);
+            //particleSystem.Play();
             if (!collision.gameObject.GetComponent<NoteController>().isCollision)
             {
                 float judgTime = Time.time - JudgmentLineZ.standardTimes[1];
@@ -100,6 +104,8 @@ public class RightBladeController : MonoBehaviour
             pos.x = Mathf.Clamp(pos.x, 0.05375149f, 0.20404f);
             pos.y = Mathf.Clamp(pos.y, 0.86f, 0.85228f);
             transform.position = pos;
+            sparksEffect.SetActive(false);
+            //particleSystem.Stop();
             //testBool = false;
             //rigidbody.velocity = Vector3.zero;
             //rigidbody.AddForce((transform.up * -1) * slidePower, ForceMode.Force); //Ç±Ç±Ç≈AddforceÇµÇƒÇ¢ÇÈÇÃÇ™ó«Ç≠Ç»Ç¢Ç©Ç‡ÅB

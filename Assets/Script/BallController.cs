@@ -105,11 +105,24 @@ public class BallController : MonoBehaviour
             healthManager.Damage();
         }
 
+        if (other.gameObject.CompareTag("RightDamageBlock"))
+        {
+            rigidbody.velocity = Vector3.zero;
+            Vector3 forceDirection = new Vector3(1f, 0.1f, 0f);
+            rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse); //ìØÇ∂ë¨ìxÇæÇ∆Ç‹Ç∏Ç¢Ç©Ç‡ÇµÇÍÇ»Ç¢ÅB
+            StartCoroutine(ActiveGravityAndAntiGravity(0.2f)); //à⁄êA
+            healthManager.Damage();
+        }
+
         if (other.gameObject.CompareTag("Stage")
+            ||
+            other.gameObject.CompareTag("RightDamageBlock")
+            ||
+            other.gameObject.CompareTag("LeftDamageBlock")
             &&
             !isNotDamage)
         {
-            Debug.Log("StageÇ…ìñÇΩÇ¡ÇƒÇ¢ÇÈ");
+            Debug.Log("StageÇ»Ç«Ç…ìñÇΩÇ¡ÇƒÇ¢ÇÈ");
             healthManager.Damage();
         }
 

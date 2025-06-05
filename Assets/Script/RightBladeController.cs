@@ -9,13 +9,15 @@ using UnityEngine.UIElements;
 public class RightBladeController : MonoBehaviour
 {
     [SerializeField] ScoreManager scoreManager;
+    [SerializeField] HealthManager healthManager;
     [SerializeField] GameObject sparksEffect;
     //[SerializeField] ParticleSystem particleSystem;
     Rigidbody rigidbody;
 
     float slidePower = 400f; //700
 
-    bool testBool = false; //èoåÇ
+    bool isRotation = false;
+    //bool testBool = false; //èoåÇ
     void Start()
     {
         rigidbody = GetComponent<Rigidbody>();
@@ -37,14 +39,14 @@ public class RightBladeController : MonoBehaviour
 
         if (Input.GetButtonDown("RightBlade"))
         {
-            testBool = false;
+            isRotation = false;
             rigidbody.velocity = Vector3.zero;
             rigidbody.AddForce((transform.up * -1) * slidePower, ForceMode.Force);
             StartCoroutine(RotationZControllerDown());
         }
         else if (Input.GetButtonUp("RightBlade"))
         {
-            testBool = true;
+            isRotation = true;
             rigidbody.velocity = Vector3.zero;
             rigidbody.AddForce(transform.up * slidePower, ForceMode.Force);
             StartCoroutine(RotationZControllerUp());
@@ -82,6 +84,10 @@ public class RightBladeController : MonoBehaviour
                 judgment = scoreManager.JudgJudgment(judgTime);
                 scoreManager.CalculateScore(noteType, judgment); //Å©Judgmentå^ÇÃïœêî
             }
+        }
+        else
+        {
+            healthManager.Damage();
         }
     }
     private void OnCollisionStay(Collision collision)
@@ -158,7 +164,7 @@ public class RightBladeController : MonoBehaviour
 
         while (timer <= duration
             &&
-            !testBool)
+            !isRotation)
         {
             rotationT = Mathf.Lerp(0, 1, (timer + (roopCount * keisu)) / duration);
             rotationZ = Mathf.Lerp(0, -50, rotationT);
@@ -181,8 +187,8 @@ public class RightBladeController : MonoBehaviour
         float keisu = 0.9f;
 
         while (timer <= duration
-            &&
-            testBool)
+            &&  
+            isRotation)
         {
             rotationT = Mathf.Lerp(0, 1, (timer + (roopCount * keisu)) / duration);
             rotationZ = Mathf.Lerp(-50, 0, rotationT);

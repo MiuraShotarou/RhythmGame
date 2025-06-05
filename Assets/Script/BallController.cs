@@ -116,14 +116,44 @@ public class BallController : MonoBehaviour
             Debug.Log("RightRightNoteに当たっている");
             rigidbody.velocity = Vector3.zero;
             Vector3 forceDirection = new Vector3(-1f, 0.1f, 0f);
-            rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse); //同じ速度だとまずいかもしれない。
+            rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
             StartCoroutine(ActiveGravityAndAntiGravity(0.1f)); //移植
+
+            if (!other.gameObject.GetComponent<NoteController>().isCollision) //スコアの計算式。
+            {
+                float judgTime = Time.time - JudgmentLineZ.standardTimes[3];
+
+                Debug.Log($"JudgmentZ.standardTimes{JudgmentLineZ.standardTimes[3]}; judgTime{judgTime}");
+                other.gameObject.GetComponent<NoteController>().isCollision = true;
+                noteType = scoreManager.JudgNoteType(other.gameObject.tag);
+                judgment = scoreManager.JudgJudgment(judgTime);
+                scoreManager.CalculateScore(noteType, judgment);
+            }
+        }
+        else if (other.gameObject.CompareTag("LeftLeftNote")) //スコアの計算式がない。
+        {
+            Debug.Log("LeftLeftNoteに当たっている");
+            rigidbody.velocity = Vector3.zero;
+            Vector3 forceDirection = new Vector3(1f, 0.1f, 0f);
+            rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
+            StartCoroutine(ActiveGravityAndAntiGravity(0.1f)); //移植
+
+            if (!other.gameObject.GetComponent<NoteController>().isCollision) //スコアの計算式。
+            {
+                float judgTime = Time.time - JudgmentLineZ.standardTimes[4];
+
+                Debug.Log($"JudgmentZ.standardTimes{JudgmentLineZ.standardTimes[4]}; judgTime{judgTime}");
+                other.gameObject.GetComponent<NoteController>().isCollision = true;
+                noteType = scoreManager.JudgNoteType(other.gameObject.tag);
+                judgment = scoreManager.JudgJudgment(judgTime);
+                scoreManager.CalculateScore(noteType, judgment);
+            }
         }
         else if (other.gameObject.CompareTag("RightDamageBlock"))
         {
             rigidbody.velocity = Vector3.zero;
             Vector3 forceDirection = new Vector3(-1f, 0.1f, 0f);
-            rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse); //同じ速度だとまずいかもしれない。
+            rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
             StartCoroutine(ActiveGravityAndAntiGravity(0.2f)); //移植
             healthManager.Damage();
         }
@@ -131,7 +161,7 @@ public class BallController : MonoBehaviour
         {
             rigidbody.velocity = Vector3.zero;
             Vector3 forceDirection = new Vector3(1f, 0.1f, 0f);
-            rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse); //同じ速度だとまずいかもしれない。
+            rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
             StartCoroutine(ActiveGravityAndAntiGravity(0.2f)); //移植
             healthManager.Damage();
         }

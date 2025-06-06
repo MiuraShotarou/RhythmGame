@@ -17,7 +17,7 @@ public class GravityDeviceControler : MonoBehaviour
         }
 
         if (other.gameObject.CompareTag("Ball")
-            && other.transform.position.y > 0.91f
+            && other.transform.position.y > 0.93f //0.91f
             //&& isGravity
             )
         {

@@ -18,7 +18,7 @@ public class AntiGravityDeviceControler : MonoBehaviour
         }
 
         if (other.gameObject.CompareTag("Ball")
-            && other.transform.position.y < 0.915f
+            && other.transform.position.y < 0.935f //0.915f
             //&& isAntiGravity
             )
         {
@@ -29,7 +29,7 @@ public class AntiGravityDeviceControler : MonoBehaviour
             //rigidbody.AddForce((forceDirectionX * -1) * forcePower, ForceMode.Force);
         }
         else if (other.gameObject.CompareTag("Ball")
-        && !(other.transform.position.y < 0.915f))
+        && !(other.transform.position.y < 0.935f))
         {
             rigidbody.velocity = Vector3.zero;
         }

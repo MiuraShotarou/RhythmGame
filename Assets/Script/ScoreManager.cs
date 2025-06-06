@@ -3,6 +3,18 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
+public enum NoteCategory
+{
+    MainNote,
+    MainNoteLong,
+    RightNote,
+    RightNoteLong,
+    LeftNote,
+    LeftNoteLong,
+    RightRightNote,
+    LeftLeftNote
+}
+
 public enum NoteType
 {
     Normal,

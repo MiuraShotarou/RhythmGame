@@ -18,6 +18,7 @@ public class RightBladeController : MonoBehaviour
 
     bool isInvalid = false;
     bool isRotation = false;
+    bool isDamageReturn = false;
     //bool testBool = false; //出撃
     void Start()
     {
@@ -35,6 +36,7 @@ public class RightBladeController : MonoBehaviour
         if (transform.position == new Vector3(0.20404f, 1.188f, -0.11f))
         {
             isInvalid = false;
+            isDamageReturn = false;
         }
 
         if ((transform.position.x == 0.2f && transform.position.y == 1.188f) //0.975f
@@ -62,7 +64,9 @@ public class RightBladeController : MonoBehaviour
                 rigidbody.AddForce((transform.up * -1) * (slidePower * 2.1f), ForceMode.Force);
             }
         }
-        else if (Input.GetButtonUp("RightBlade"))
+        else if (Input.GetButtonUp("RightBlade")
+            &&
+            !isDamageReturn)
         {
             isRotation = true;
             isInvalid = true;
@@ -101,6 +105,7 @@ public class RightBladeController : MonoBehaviour
         else
         {
             Debug.Log($"{collision.gameObject}に当たっている");
+            isDamageReturn = true;
             healthManager.Damage();
             StartCoroutine(posReset());
         }
@@ -202,7 +207,7 @@ public class RightBladeController : MonoBehaviour
         float keisu = 0.9f;
 
         while (timer <= duration
-            &&  
+            &&
             isRotation)
         {
             rotationT = Mathf.Lerp(0, 1, (timer + (roopCount * keisu)) / duration);
@@ -218,11 +223,10 @@ public class RightBladeController : MonoBehaviour
         isRotation = true;
         isInvalid = true;
         rigidbody.velocity = Vector3.zero;
-        rigidbody.AddForce(transform.up * (slidePower * 2f), ForceMode.Force);
 
         float timer = 0;
         float startTime = Time.time;
-        float duration = 4f;
+        float duration = 1.25f;
         float rotationT = 0;
         float rotationZ = 0;
         int roopCount = 0;
@@ -232,7 +236,8 @@ public class RightBladeController : MonoBehaviour
             &&
             isRotation)
         {
-            rotationT = Mathf.Lerp(0, 1, (timer + (roopCount * keisu)) / duration);
+            rigidbody.AddForce(transform.up * 1f, ForceMode.Force);
+            rotationT = Mathf.Lerp(0, 1, timer / duration);
             rotationZ = Mathf.Lerp(-50, 0, rotationT);
             transform.rotation = Quaternion.Euler(0, 0, rotationZ); //timerの更新から。
             timer = Time.time - startTime;

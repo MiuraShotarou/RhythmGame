@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class FlowingController : MonoBehaviour
 {
-    public float flowingSpeed = 1f;
+    float flowingSpeed = 2f;
     void Start()
     {
         
@@ -13,5 +13,6 @@ public class FlowingController : MonoBehaviour
     void Update()
     {
         transform.position -= transform.forward * Time.deltaTime * flowingSpeed;
+        //Debug.Log(Time.deltaTime);
     }
 }

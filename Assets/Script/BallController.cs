@@ -16,7 +16,7 @@ public class BallController : MonoBehaviour
     bool ischecked = false;
     bool isInvalid = true;
 
-    bool isNotDamage = false;
+    public static bool isNotDamage = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -70,7 +70,7 @@ public class BallController : MonoBehaviour
             Vector3 memorize = rigidbody.velocity;
             if (rigidbody.velocity != memorize)
             {
-                Debug.Log(rigidbody.velocity);
+                //Debug.Log(rigidbody.velocity);
             }
         }
     }
@@ -81,14 +81,14 @@ public class BallController : MonoBehaviour
     {
         if (other.gameObject.CompareTag("RightBlade"))
         {
-            Debug.Log("接触・RightBlade");
+            //Debug.Log("接触・RightBlade");
             StartCoroutine(OnBounceBallRightBlade());
 
             ischecked = true;
         }
         else if (other.gameObject.CompareTag("LeftBlade"))
         {
-            Debug.Log("接触・LeftBlade");
+            //Debug.Log("接触・LeftBlade");
             StartCoroutine(OnBounceBallLeftBlade());
 
             ischecked = true;
@@ -104,7 +104,7 @@ public class BallController : MonoBehaviour
             {
                 float judgTime = Time.time - JudgmentLineZ.standardTimes[0];
 
-                Debug.Log($"JudgmentZ.standardTimes{JudgmentLineZ.standardTimes[0]}; judgTime{judgTime}");
+                //Debug.Log($"JudgmentZ.standardTimes{JudgmentLineZ.standardTimes[0]}; judgTime{judgTime}");
                 other.gameObject.GetComponent<NoteController>().isCollision = true;
                 noteType = scoreManager.JudgNoteType(other.gameObject.tag);
                 judgment = scoreManager.JudgJudgment(judgTime);
@@ -113,7 +113,7 @@ public class BallController : MonoBehaviour
         }
         else if (other.gameObject.CompareTag("RightRightNote"))
         {
-            Debug.Log("RightRightNoteに当たっている");
+            //Debug.Log("RightRightNoteに当たっている");
             rigidbody.velocity = Vector3.zero;
             Vector3 forceDirection = new Vector3(-1f, 0.1f, 0f);
             rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
@@ -123,7 +123,7 @@ public class BallController : MonoBehaviour
             {
                 float judgTime = Time.time - JudgmentLineZ.standardTimes[3];
 
-                Debug.Log($"JudgmentZ.standardTimes{JudgmentLineZ.standardTimes[3]}; judgTime{judgTime}");
+                //Debug.Log($"JudgmentZ.standardTimes{JudgmentLineZ.standardTimes[3]}; judgTime{judgTime}");
                 other.gameObject.GetComponent<NoteController>().isCollision = true;
                 noteType = scoreManager.JudgNoteType(other.gameObject.tag);
                 judgment = scoreManager.JudgJudgment(judgTime);
@@ -132,7 +132,7 @@ public class BallController : MonoBehaviour
         }
         else if (other.gameObject.CompareTag("LeftLeftNote")) //スコアの計算式がない。
         {
-            Debug.Log("LeftLeftNoteに当たっている");
+            //Debug.Log("LeftLeftNoteに当たっている");
             rigidbody.velocity = Vector3.zero;
             Vector3 forceDirection = new Vector3(1f, 0.1f, 0f);
             rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
@@ -142,7 +142,7 @@ public class BallController : MonoBehaviour
             {
                 float judgTime = Time.time - JudgmentLineZ.standardTimes[4];
 
-                Debug.Log($"JudgmentZ.standardTimes{JudgmentLineZ.standardTimes[4]}; judgTime{judgTime}");
+                //Debug.Log($"JudgmentZ.standardTimes{JudgmentLineZ.standardTimes[4]}; judgTime{judgTime}");
                 other.gameObject.GetComponent<NoteController>().isCollision = true;
                 noteType = scoreManager.JudgNoteType(other.gameObject.tag);
                 judgment = scoreManager.JudgJudgment(judgTime);
@@ -156,6 +156,7 @@ public class BallController : MonoBehaviour
             rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
             StartCoroutine(ActiveGravityAndAntiGravity(0.2f)); //移植
             healthManager.Damage();
+            //StartCoroutine(PosReset("RightDamageBlock"));
         }
         else if (other.gameObject.CompareTag("LeftDamageBlock"))
         {
@@ -164,13 +165,15 @@ public class BallController : MonoBehaviour
             rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
             StartCoroutine(ActiveGravityAndAntiGravity(0.2f)); //移植
             healthManager.Damage();
+            //StartCoroutine(PosReset("LeftDamageBlock"));
         }
         else if (other.gameObject.GetComponent<MeshRenderer>().enabled != false
             &&
             !isNotDamage)
         {
-            Debug.Log($"{other.gameObject}などに当たっている");
+            //Debug.Log($"{other.gameObject}などに当たっている");
             healthManager.Damage();
+            StartCoroutine(PosReset("Other"));
         }
     }
     private void OnTriggerStay(Collider other)
@@ -250,6 +253,38 @@ public class BallController : MonoBehaviour
         noteLong.GetComponent<NoteController>().isCollisionStay = true;
         yield return new WaitForSeconds(0.0166f);                                //ほぼワンフレームにつき加点
         noteLong.GetComponent<NoteController>().isCollisionStay = false;
+    }
+    IEnumerator PosReset(string collisionName)
+    {
+        Debug.Log("posReset起動"); //赤色の点滅とかがあると良いかもしれない。
+        float timer = 0;
+        //float startTime = Time.time;
+        float duration = 1f;
+        Vector3 startPos = new Vector3();
+        Vector3 endPos = new Vector3(0f, 0.93f, -0.1f);
+        //int roopCount = 0;
+        //float keisu = 0.9f;
+        switch (collisionName)
+        {
+            case "RightDamageBlock":
+                //startPos = new Vector3();
+                break;
+            case "LeftDamageBlock":
+                //startPos = new Vector3(,):
+                break;
+            case "Other":
+                startPos = new Vector3(0f, 0.82f, -0.1f);
+                break;
+        }
+
+        while (timer <= duration)
+        {
+            float t = Mathf.Lerp(0, 1, timer / duration);
+            transform.position = Vector3.Lerp(startPos, endPos, t);
+            timer = timer + Time.deltaTime;
+            //roopCount++;
+            yield return null;
+        }
     }
 }
 

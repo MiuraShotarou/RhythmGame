@@ -25,7 +25,7 @@ public class HealthManager : MonoBehaviour
     }
 
     //float s = 0.001f;
-    //float l = 0.01f; 
+    //float l = 0.01f;
     float t = 0; //0.5 ‚ª^‚ñ’† 0 1
     float halfRange = 0.01f;
     float duration = 0.5f;

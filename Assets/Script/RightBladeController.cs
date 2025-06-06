@@ -80,6 +80,7 @@ public class RightBladeController : MonoBehaviour
             ||
             collision.gameObject.CompareTag("RightNoteLong"))
         {
+            BallController.isNotDamage = true;
             Vector3 pos = transform.position;
             pos.x = Mathf.Clamp(pos.x, 0.053f, 0.20404f);
             pos.y = Mathf.Clamp(pos.y, 0.86f, 0.853f);
@@ -90,6 +91,7 @@ public class RightBladeController : MonoBehaviour
             {
                 float judgTime = Time.time - JudgmentLineZ.standardTimes[1];
 
+                //Debug.Log($"RhigtBlade‚ÌJudgmentZ.standardTimes{JudgmentLineZ.standardTimes[1]}; judgTime{judgTime}");
                 collision.gameObject.GetComponent<NoteController>().isCollision = true;
                 noteType = scoreManager.JudgNoteType(collision.gameObject.tag);
                 judgment = scoreManager.JudgJudgment(judgTime);
@@ -100,6 +102,7 @@ public class RightBladeController : MonoBehaviour
         {
             Debug.Log($"{collision.gameObject}‚É“–‚½‚Á‚Ä‚¢‚é");
             healthManager.Damage();
+            StartCoroutine(posReset());
         }
     }
     private void OnCollisionStay(Collision collision)
@@ -108,6 +111,7 @@ public class RightBladeController : MonoBehaviour
             ||
             collision.gameObject.CompareTag("RightNoteLong"))
         {
+            Debug.Log($"BallController.isNotDamage{BallController.isNotDamage}");
             Vector3 pos = transform.position;
             pos.x = Mathf.Clamp(pos.x, 0.05375149f, 0.20404f);
             pos.y = Mathf.Clamp(pos.y, 0.86f, 0.85228f);
@@ -128,6 +132,7 @@ public class RightBladeController : MonoBehaviour
             ||
             collision.gameObject.CompareTag("RightNoteLong"))
         {
+            BallController.isNotDamage = false;
             Vector3 pos = transform.position;
             pos.x = Mathf.Clamp(pos.x, 0.05375149f, 0.20404f);
             pos.y = Mathf.Clamp(pos.y, 0.86f, 0.85228f);
@@ -198,6 +203,33 @@ public class RightBladeController : MonoBehaviour
 
         while (timer <= duration
             &&  
+            isRotation)
+        {
+            rotationT = Mathf.Lerp(0, 1, (timer + (roopCount * keisu)) / duration);
+            rotationZ = Mathf.Lerp(-50, 0, rotationT);
+            transform.rotation = Quaternion.Euler(0, 0, rotationZ); //timer‚ÌXV‚©‚çB
+            timer = Time.time - startTime;
+            roopCount++;
+            yield return null;
+        }
+    }
+    IEnumerator posReset()
+    {
+        isRotation = true;
+        isInvalid = true;
+        rigidbody.velocity = Vector3.zero;
+        rigidbody.AddForce(transform.up * (slidePower * 2f), ForceMode.Force);
+
+        float timer = 0;
+        float startTime = Time.time;
+        float duration = 4f;
+        float rotationT = 0;
+        float rotationZ = 0;
+        int roopCount = 0;
+        float keisu = 0.9f;
+
+        while (timer <= duration
+            &&
             isRotation)
         {
             rotationT = Mathf.Lerp(0, 1, (timer + (roopCount * keisu)) / duration);

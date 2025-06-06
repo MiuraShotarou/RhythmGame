@@ -38,7 +38,7 @@ public class ScoreManager : MonoBehaviour
             if (_totalScore != _totalScore + value)
             {
                 _totalScore += value;
-                Debug.Log($"スコアに加点。value{value}, totalScore{_totalScore}"); //スコアがちゃんと加算されているかの確認
+                //Debug.Log($"スコアに加点。value{value}, totalScore{_totalScore}"); //スコアがちゃんと加算されているかの確認
             }
         }
     }
@@ -86,7 +86,6 @@ public class ScoreManager : MonoBehaviour
     }
     public void CalculateScore(NoteType noteType, Judgment judgment)
     {
-        Debug.Log("CalculateScoreが呼ばれている。");
         int noteIndex = -1;
         int judgmentIndex = -1;
 
@@ -136,7 +135,6 @@ public class ScoreManager : MonoBehaviour
     {
         deltaTime += (Time.deltaTime - deltaTime) * 0.1f;
     }
-
     void OnGUI() //知らない関数
     {
         float fps = 1.0f / deltaTime;

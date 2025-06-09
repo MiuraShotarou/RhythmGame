@@ -10,9 +10,9 @@ public class FlowingController : MonoBehaviour
         
     }
 
-    void Update()
+
+    void LateUpdate()
     {
         transform.position -= transform.forward * Time.deltaTime * flowingSpeed;
-        //Debug.Log(Time.deltaTime);
     }
 }

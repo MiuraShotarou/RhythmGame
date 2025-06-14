@@ -92,12 +92,12 @@ public class LeftBladeController : MonoBehaviour
             transform.position = pos;
             sparksEffect.SetActive(true);
             //particleSystem.Play();
-            if (!collision.gameObject.GetComponent<NoteController>().isCollision)
+            if (!collision.gameObject.GetComponent<NoteController>().IsCollision)
             {
                 float judgTime = Time.time - JudgmentLineZ.standardTimes[2];
 
                 Debug.Log($"LeftBladeÇÃJudgmentZ.standardTimes{JudgmentLineZ.standardTimes[2]}; judgTime{judgTime}");
-                collision.gameObject.GetComponent<NoteController>().isCollision = true;
+                collision.gameObject.GetComponent<NoteController>().IsCollision = true;
                 noteType = scoreManager.JudgNoteType(collision.gameObject.tag);
                 judgment = scoreManager.JudgJudgment(judgTime);
                 scoreManager.CalculateScore(noteType, judgment); //Å©Judgmentå^ÇÃïœêî

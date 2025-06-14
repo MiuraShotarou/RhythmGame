@@ -1,19 +1,47 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 public class HealthManager : MonoBehaviour
 {
     [SerializeField] Transform cameraTransform;
-    public int health = 2 + 100;
+    [SerializeField] GameObject crackedGlass;
+    public int health = 2;
 
     public void Damage()
     {
         health--;
         StartCoroutine(DamageShake());
-        if (health <= 0)
+        Debug.Log("health" + health);
+        if (health == 1)
+        {
+            Debug.Log("StageBreak");
+            StartCoroutine(StageBreak(1f));
+        }
+        else if (health <= 0)
         {
             //GameOver();
+        }
+    }
+
+    IEnumerator StageBreak(float level)
+    {
+        switch (level)
+        {
+            case 1:
+                for (int i = 0; i < 12; i++)
+                {
+                    //Time.timeScale = 0f;
+                    //yield return new WaitForSeconds(1f);
+                    //Time.timeScale = 1f;
+
+                    Instantiate(crackedGlass, new Vector3(0f, 0.25f, i), Quaternion.identity);
+                    Instantiate(crackedGlass, new Vector3(-0.6f, 1, i), Quaternion.identity);
+                    Instantiate(crackedGlass, new Vector3(0.6f, 1, i), Quaternion.identity);
+                    yield return new WaitForSeconds(0f);
+                }
+                break;
         }
     }
 

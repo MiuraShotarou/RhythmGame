@@ -101,12 +101,12 @@ public class BallController : MonoBehaviour
             isNotDamage = true;
             miniY = 0.85f;
 
-            if (!other.gameObject.GetComponent<NoteController>().isCollision)
+            if (!other.gameObject.GetComponent<NoteController>().IsCollision)
             {
                 float judgTime = Time.time - JudgmentLineZ.standardTimes[0];
 
                 //Debug.Log($"JudgmentZ.standardTimes{JudgmentLineZ.standardTimes[0]}; judgTime{judgTime}");
-                other.gameObject.GetComponent<NoteController>().isCollision = true;
+                other.gameObject.GetComponent<NoteController>().IsCollision = true;
                 noteType = scoreManager.JudgNoteType(other.gameObject.tag);
                 judgment = scoreManager.JudgJudgment(judgTime);
                 scoreManager.CalculateScore(noteType, judgment);
@@ -120,12 +120,12 @@ public class BallController : MonoBehaviour
             rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
             StartCoroutine(ActiveGravityAndAntiGravity(0.1f)); //移植
 
-            if (!other.gameObject.GetComponent<NoteController>().isCollision) //スコアの計算式。
+            if (!other.gameObject.GetComponent<NoteController>().IsCollision) //スコアの計算式。
             {
                 float judgTime = Time.time - JudgmentLineZ.standardTimes[3];
 
                 //Debug.Log($"JudgmentZ.standardTimes{JudgmentLineZ.standardTimes[3]}; judgTime{judgTime}");
-                other.gameObject.GetComponent<NoteController>().isCollision = true;
+                other.gameObject.GetComponent<NoteController>().IsCollision = true;
                 noteType = scoreManager.JudgNoteType(other.gameObject.tag);
                 judgment = scoreManager.JudgJudgment(judgTime);
                 scoreManager.CalculateScore(noteType, judgment);
@@ -139,12 +139,12 @@ public class BallController : MonoBehaviour
             rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
             StartCoroutine(ActiveGravityAndAntiGravity(0.1f)); //移植
 
-            if (!other.gameObject.GetComponent<NoteController>().isCollision) //スコアの計算式。
+            if (!other.gameObject.GetComponent<NoteController>().IsCollision) //スコアの計算式。
             {
                 float judgTime = Time.time - JudgmentLineZ.standardTimes[4];
 
                 //Debug.Log($"JudgmentZ.standardTimes{JudgmentLineZ.standardTimes[4]}; judgTime{judgTime}");
-                other.gameObject.GetComponent<NoteController>().isCollision = true;
+                other.gameObject.GetComponent<NoteController>().IsCollision = true;
                 noteType = scoreManager.JudgNoteType(other.gameObject.tag);
                 judgment = scoreManager.JudgJudgment(judgTime);
                 scoreManager.CalculateScore(noteType, judgment);

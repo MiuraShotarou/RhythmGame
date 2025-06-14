@@ -53,7 +53,7 @@ public class AudioManager : MonoBehaviour
             NoteType.Add(inputJson.notes[i].type);
 
             float z = NotesTime[i] * NotesSpeed + 1f;
-            Debug.Log(z);
+            //Debug.Log(z);
             NotesObj.Add(Instantiate(notePrefab, new Vector3(inputJson.notes[i].block, 0.8f, z), Quaternion.identity));
         }
     }

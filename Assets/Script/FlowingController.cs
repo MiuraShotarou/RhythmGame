@@ -5,11 +5,6 @@ using UnityEngine;
 public class FlowingController : MonoBehaviour
 {
     float flowingSpeed = 2f;
-    void Start()
-    {
-        
-    }
-
 
     void LateUpdate()
     {

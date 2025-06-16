@@ -21,12 +21,18 @@ public class NoteController : MonoBehaviour
         //ParticleSystem particleSystem = effectObj.GetComponent<ParticleSystem>();
 
         ParticleSystem particleSystem = GetComponentInChildren<ParticleSystem>();
+        //Animator animator = GetComponent<Animator>();
 
-        if (particleSystem != null)
+        //Debug.Log(animator.name);
+        if (particleSystem != null
+            //&&
+            //animator != null
+            )
         {
-            particleSystem.Emit(1);
+            particleSystem.Emit(1);                                                 //プレファブ毎にパーティクルシステムを変えれば良い
+            //animator.Play("CrushImage");
         }
-        else
+        else if (particleSystem == null)
         {
             Debug.Log("particleSystemが設定されていない。");
         }

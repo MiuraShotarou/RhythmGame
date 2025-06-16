@@ -5,8 +5,10 @@ using UnityEngine;
 
 public class AudioManager : MonoBehaviour
 {
-    [SerializeField] AudioSource audioSource;
-    [SerializeField] List<AudioClip> audioClip;
+    public List<AudioClip> bgmClip;
+    public List<AudioClip> seClip;
+    public AudioSource bgmSource;
+    public AudioSource seSource;
 
     public int noteNum;       //総ノーツ数
     private string songName;  //曲名
@@ -30,12 +32,12 @@ public class AudioManager : MonoBehaviour
     IEnumerator PlayAudio()
     {
         //if (CountDown <= 0)
-        yield return new WaitForSeconds(3f);
-        audioSource.clip = audioClip[0]; //のちにインデックスは引数で決定する仕様に。
+        yield return new WaitForSeconds(100f); //3f
+        bgmSource.clip = bgmClip[0]; //のちにインデックスは引数で決定する仕様に。
         noteNum = 0;
         songName = "SAIL AWAY";
         Load(songName);
-        audioSource.Play();
+        bgmSource.Play();
     }
     void Load(string SongName)
     {

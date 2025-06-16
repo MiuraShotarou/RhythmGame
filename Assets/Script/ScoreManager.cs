@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public enum NoteCategory
+public enum NoteCategory //–¢Žg—p
 {
     MainNote,
     MainNoteLong,
@@ -12,7 +12,8 @@ public enum NoteCategory
     LeftNote,
     LeftNoteLong,
     RightRightNote,
-    LeftLeftNote
+    LeftLeftNote,
+    BlueNote
 }
 
 public enum NoteType

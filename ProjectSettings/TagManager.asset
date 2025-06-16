@@ -25,6 +25,7 @@ TagManager:
   - GravityDevice
   - AntiGravityDevice
   - RightRightNote
+  - BlueNote
   layers:
   - Default
   - TransparentFX

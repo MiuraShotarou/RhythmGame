@@ -16,11 +16,15 @@ public class BallController : MonoBehaviour
 
     bool ischecked = false;
     bool isInvalid = true;
-
+    bool isBlue = false;
     public static bool isNotDamage = false;
+
+    GameObject bluePlane;
     // Start is called before the first frame update
     void Start()
     {
+        bluePlane = transform.GetChild(0).gameObject;
+        Debug.Log(bluePlane);
         rigidbody = GetComponent<Rigidbody>();
     }
 
@@ -53,9 +57,10 @@ public class BallController : MonoBehaviour
             //Debug.Log("Hold呼ばれた");
             rigidbody.AddForce(Vector2.down * 150, ForceMode.Force);
         }
-        else if (Input.GetButtonDown("Test")) //試験的
+        else if (Input.GetButtonDown("ChangeBlue")) //試験的
         {
-            Debug.Log(scoreManager.TotalScore);
+            isBlue = true;
+            bluePlane.SetActive(true);
         }
 
         if (transform.position.x == 0
@@ -80,30 +85,69 @@ public class BallController : MonoBehaviour
     Judgment judgment;
     private void OnTriggerEnter(Collider other)
     {
+
         if (other.gameObject.CompareTag("RightBlade"))
         {
             //Debug.Log("接触・RightBlade");
             StartCoroutine(OnBounceBallRightBlade());
 
-            ischecked = true;
+            bluePlane.SetActive(false);
         }
         else if (other.gameObject.CompareTag("LeftBlade"))
         {
             //Debug.Log("接触・LeftBlade");
             StartCoroutine(OnBounceBallLeftBlade());
 
-            ischecked = true;
+            bluePlane.SetActive(false);
         }
         else if (other.gameObject.CompareTag("MainNote")
             ||
-            other.gameObject.CompareTag("MainNoteLong"))
+            other.gameObject.CompareTag("MainNoteLong")) //連続でNoteを叩く場合、前NoteのJudgmentLineZが当たった時間 + 0.115fの間に次NoteがJudgmentLineZに当たってはいけない。
         {
-            isNotDamage = true;
+            if (!isBlue)
+            {
+                isNotDamage = true;
+            }
+            else if (isBlue)
+            {
+                healthManager.Damage();
+                PosReset("Other"); //追加
+                isBlue = false;
+                bluePlane.SetActive(false);
+                return;
+            }
+
             miniY = 0.85f;
 
             if (!other.gameObject.GetComponent<NoteController>().IsCollision)
             {
                 float judgTime = Time.time - JudgmentLineZ.standardTimes[0];
+
+                //Debug.Log($"JudgmentZ.standardTimes{JudgmentLineZ.standardTimes[0]}; judgTime{judgTime}");
+                other.gameObject.GetComponent<NoteController>().IsCollision = true;
+                noteType = scoreManager.JudgNoteType(other.gameObject.tag);
+                judgment = scoreManager.JudgJudgment(judgTime);
+                scoreManager.CalculateScore(noteType, judgment);
+            }
+        }
+        else if (other.gameObject.CompareTag("BlueNote")) //怪しい
+        {
+            if (!isBlue)
+            {
+                Transform crackTrs = other.transform.GetChild(2);
+                crackTrs.gameObject.SetActive(true);
+                return;
+                //見た目を変える。
+            }
+            isBlue = false;
+            bluePlane.SetActive(false);
+
+            isNotDamage = true;
+            miniY = 0.85f;
+
+            if (!other.gameObject.GetComponent<NoteController>().IsCollision)
+            {
+                float judgTime = Time.time - JudgmentLineZ.standardTimes[5];
 
                 //Debug.Log($"JudgmentZ.standardTimes{JudgmentLineZ.standardTimes[0]}; judgTime{judgTime}");
                 other.gameObject.GetComponent<NoteController>().IsCollision = true;
@@ -119,6 +163,13 @@ public class BallController : MonoBehaviour
             Vector3 forceDirection = new Vector3(-1f, 0.1f, 0f);
             rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
             StartCoroutine(ActiveGravityAndAntiGravity(0.1f)); //移植
+
+            if (isBlue) //未確認
+            {
+                healthManager.Damage();
+                isBlue = false;
+                bluePlane.SetActive(false);
+            }
 
             if (!other.gameObject.GetComponent<NoteController>().IsCollision) //スコアの計算式。
             {
@@ -139,6 +190,13 @@ public class BallController : MonoBehaviour
             rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
             StartCoroutine(ActiveGravityAndAntiGravity(0.1f)); //移植
 
+            if (isBlue) //未確認
+            {
+                healthManager.Damage();
+                isBlue = false;
+                bluePlane.SetActive(false);
+            }
+
             if (!other.gameObject.GetComponent<NoteController>().IsCollision) //スコアの計算式。
             {
                 float judgTime = Time.time - JudgmentLineZ.standardTimes[4];
@@ -155,7 +213,10 @@ public class BallController : MonoBehaviour
             rigidbody.velocity = Vector3.zero;
             Vector3 forceDirection = new Vector3(-1f, 0.1f, 0f);
             rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
-            StartCoroutine(ActiveGravityAndAntiGravity(0.2f)); //移植
+            StartCoroutine(ActiveGravityAndAntiGravity(1f)); //移植
+
+            isBlue = false;
+            bluePlane.SetActive(false);
             healthManager.Damage();
             //StartCoroutine(PosReset("RightDamageBlock"));
         }
@@ -164,7 +225,10 @@ public class BallController : MonoBehaviour
             rigidbody.velocity = Vector3.zero;
             Vector3 forceDirection = new Vector3(1f, 0.1f, 0f);
             rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
-            StartCoroutine(ActiveGravityAndAntiGravity(0.2f)); //移植
+            StartCoroutine(ActiveGravityAndAntiGravity(1f)); //いじり
+
+            isBlue = false;
+            bluePlane.SetActive(false);
             healthManager.Damage();
             //StartCoroutine(PosReset("LeftDamageBlock"));
         }
@@ -174,7 +238,7 @@ public class BallController : MonoBehaviour
         {
             //Debug.Log($"{other.gameObject}などに当たっている");
             healthManager.Damage();
-            StartCoroutine(PosReset("Other"));
+            PosReset("Other"); //追加
         }
     }
     private void OnTriggerStay(Collider other)
@@ -196,7 +260,9 @@ public class BallController : MonoBehaviour
     {
         if (other.gameObject.CompareTag("MainNote")
             ||
-            other.gameObject.CompareTag("MainNoteLong"))
+            other.gameObject.CompareTag("MainNoteLong")
+            ||
+            other.gameObject.CompareTag("BlueNote"))
         {
             miniY = 0.82f;
 
@@ -255,7 +321,7 @@ public class BallController : MonoBehaviour
         yield return new WaitForSeconds(0.0166f);                                //ほぼワンフレームにつき加点
         noteLong.GetComponent<NoteController>().isCollisionStay = false;
     }
-    IEnumerator PosReset(string collisionName)
+    public IEnumerator PosReset(string collisionName)
     {
         Debug.Log("posReset起動"); //赤色の点滅とかがあると良いかもしれない。
         float timer = 0;
@@ -268,10 +334,10 @@ public class BallController : MonoBehaviour
         switch (collisionName)
         {
             case "RightDamageBlock":
-                //startPos = new Vector3();
+                startPos = new Vector3(0.3162518f, 1.126752f, -0.1f);
                 break;
             case "LeftDamageBlock":
-                //startPos = new Vector3(,):
+                startPos = new Vector3(-0.3162518f, 1.126752f, -0.1f);
                 break;
             case "Other":
                 startPos = new Vector3(0f, 0.82f, -0.1f);

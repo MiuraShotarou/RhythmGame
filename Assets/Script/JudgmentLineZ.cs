@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class JudgmentLineZ : MonoBehaviour
 {
-    public static float[] standardTimes = new float[8];
+    public static float[] standardTimes = new float[6];
 
     bool isChecked = false;
 
@@ -15,7 +15,6 @@ public class JudgmentLineZ : MonoBehaviour
             !isChecked)
         {
             isChecked = true; //いらないかも
-            Debug.Log("JudgmentZにあたってるよー");
             switch (gameObject.tag) //noteのタグを取得。
             {
                 case ("MainNote"):
@@ -41,6 +40,9 @@ public class JudgmentLineZ : MonoBehaviour
                     break;
                 case ("LeftNoteLong"):
                     standardTimes[2] = Time.time;
+                    break;
+                case ("BlueNote"):
+                    standardTimes[5] = Time.time;
                     break;
             }
         }

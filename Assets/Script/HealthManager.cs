@@ -2,17 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using System.Linq;
+using Unity.VisualScripting;
 
 public class HealthManager : MonoBehaviour
 {
     [SerializeField] Transform cameraTransform;
     [SerializeField] GameObject crackedGlass;
+    [SerializeField] GameObject ball;
     public int health = 2;
+
+    bool isGameOver;
 
     public void Damage()
     {
         health--;
-        StartCoroutine(DamageShake());
         Debug.Log("health" + health);
         if (health == 1)
         {
@@ -21,12 +25,42 @@ public class HealthManager : MonoBehaviour
         }
         else if (health <= 0)
         {
-            //GameOver();
+            GameOver();
         }
     }
 
     IEnumerator StageBreak(float level)
     {
+        FlowingController[] flowingControllers = FindObjectsOfType<FlowingController>();
+        foreach (FlowingController controller in flowingControllers)
+        {
+            controller.enabled = false;
+        }
+        ball.GetComponent<Rigidbody>().isKinematic = true;
+
+        GetComponent<AudioManager>().bgmSource.Pause();
+        GetComponent<AudioManager>().seSource.clip = GetComponent<AudioManager>().seClip[0];
+        GetComponent<AudioManager>().seSource.Play();
+
+        yield return new WaitForSeconds(1f);
+        foreach (FlowingController controller in flowingControllers)
+        {
+            if (controller != null)
+            {
+                controller.enabled = true;
+            }
+            else if (controller == null)
+            {
+                Debug.Log("FlowingControllerはnull");
+            }
+        }
+        ball.GetComponent<Rigidbody>().isKinematic = false;
+        GetComponent<AudioManager>().seSource.clip = GetComponent<AudioManager>().seClip[1];
+        GetComponent<AudioManager>().seSource.Play();
+        GetComponent<AudioManager>().bgmSource.Play();
+        StartCoroutine(DamageShake());
+        //StartCoroutine(ball.GetComponent<BallController>().PosReset("Other"));
+
         switch (level)
         {
             case 1:
@@ -43,10 +77,33 @@ public class HealthManager : MonoBehaviour
                 }
                 break;
         }
+        
+        while (!isGameOver)
+        {
+            var objF = Instantiate(crackedGlass, new Vector3(0f, 0.25f, 11), Quaternion.identity);
+            var objR = Instantiate(crackedGlass, new Vector3(-0.6f, 1, 11), Quaternion.identity);
+            var objL = Instantiate(crackedGlass, new Vector3(0.6f, 1, 11), Quaternion.identity);
+            Destroy(objF, 10f);
+            Destroy(objR, 10f);
+            Destroy(objL, 10f);
+
+            yield return new WaitForSeconds(0.5f);
+        }
     }
 
     public void GameOver()
     {
+        Debug.Log("GameOverが呼ばれた");
+        isGameOver = true;
+        GetComponent<AudioManager>().bgmSource.Stop();
+        GameObject[] flowingControllerObjs = FindObjectsOfType<FlowingController>()
+        .Select(fc => fc.gameObject)
+        .ToArray();
+        foreach (GameObject obj in flowingControllerObjs)
+        {
+            Destroy(obj);
+        }
+        
         //画面暗転
         //復活
         //好きなタイミングで再開　→　ボールを上から支えているガラス or 糸が破壊される。

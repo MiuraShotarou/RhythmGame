@@ -57,7 +57,7 @@ public class HealthManager : MonoBehaviour
         ball.GetComponent<Rigidbody>().isKinematic = false;
         GetComponent<AudioManager>().seSource.clip = GetComponent<AudioManager>().seClip[1];
         GetComponent<AudioManager>().seSource.Play();
-        GetComponent<AudioManager>().bgmSource.Play();
+        GetComponent<AudioManager>().bgmSource.UnPause();
         StartCoroutine(DamageShake());
         //StartCoroutine(ball.GetComponent<BallController>().PosReset("Other"));
 
@@ -96,9 +96,11 @@ public class HealthManager : MonoBehaviour
         Debug.Log("GameOverÇ™åƒÇŒÇÍÇΩ");
         isGameOver = true;
         GetComponent<AudioManager>().bgmSource.Stop();
+        GetComponent<AudioManager>().seSource.clip = GetComponent<AudioManager>().seClip[2];
+        GetComponent<AudioManager>().seSource.Play();
         GameObject[] flowingControllerObjs = FindObjectsOfType<FlowingController>()
         .Select(fc => fc.gameObject)
-        .ToArray();
+        .ToArray();                                                                 //âêÕÇ∑ÇÈÇ±Ç∆ÅB
         foreach (GameObject obj in flowingControllerObjs)
         {
             Destroy(obj);

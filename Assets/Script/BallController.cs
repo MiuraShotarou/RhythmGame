@@ -18,6 +18,7 @@ public class BallController : MonoBehaviour
     bool isInvalid = true;
     bool isBlue = false;
     public static bool isNotDamage = false;
+    bool isNotBlockDamage = false;
 
     GameObject bluePlane;
     // Start is called before the first frame update
@@ -69,6 +70,7 @@ public class BallController : MonoBehaviour
             //Debug.Log("Gravityが戻った");
             AntiGravityDeviceControler.isAntiGravity = true;
             GravityDeviceControler.isGravity = true;
+            isNotBlockDamage = false; //追加
         }
 
         if (ischecked)
@@ -158,7 +160,7 @@ public class BallController : MonoBehaviour
         }
         else if (other.gameObject.CompareTag("RightRightNote"))
         {
-            //Debug.Log("RightRightNoteに当たっている");
+            isNotBlockDamage = true;
             rigidbody.velocity = Vector3.zero;
             Vector3 forceDirection = new Vector3(-1f, 0.1f, 0f);
             rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
@@ -184,7 +186,7 @@ public class BallController : MonoBehaviour
         }
         else if (other.gameObject.CompareTag("LeftLeftNote")) //スコアの計算式がない。
         {
-            //Debug.Log("LeftLeftNoteに当たっている");
+            isNotBlockDamage = true;
             rigidbody.velocity = Vector3.zero;
             Vector3 forceDirection = new Vector3(1f, 0.1f, 0f);
             rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
@@ -208,7 +210,9 @@ public class BallController : MonoBehaviour
                 scoreManager.CalculateScore(noteType, judgment);
             }
         }
-        else if (other.gameObject.CompareTag("RightDamageBlock"))
+        else if (other.gameObject.CompareTag("RightDamageBlock")
+            &&
+            !isNotBlockDamage)
         {
             rigidbody.velocity = Vector3.zero;
             Vector3 forceDirection = new Vector3(-1f, 0.1f, 0f);
@@ -220,7 +224,9 @@ public class BallController : MonoBehaviour
             healthManager.Damage();
             //StartCoroutine(PosReset("RightDamageBlock"));
         }
-        else if (other.gameObject.CompareTag("LeftDamageBlock"))
+        else if (other.gameObject.CompareTag("LeftDamageBlock")
+            &&
+            !isNotBlockDamage)
         {
             rigidbody.velocity = Vector3.zero;
             Vector3 forceDirection = new Vector3(1f, 0.1f, 0f);
@@ -236,6 +242,7 @@ public class BallController : MonoBehaviour
             &&
             !isNotDamage)
         {
+            StartCoroutine(IsNotDamageController());
             //Debug.Log($"{other.gameObject}などに当たっている");
             healthManager.Damage();
             PosReset("Other"); //追加
@@ -352,6 +359,13 @@ public class BallController : MonoBehaviour
             //roopCount++;
             yield return null;
         }
+    }
+
+    IEnumerator IsNotDamageController()
+    {
+        isNotDamage = true;
+        yield return new WaitForSeconds(0.5f);
+        isNotDamage = false;
     }
 }
 

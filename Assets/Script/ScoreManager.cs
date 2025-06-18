@@ -5,15 +5,15 @@ using UnityEngine;
 
 public enum NoteCategory //未使用
 {
-    MainNote,
-    MainNoteLong,
-    RightNote,
-    RightNoteLong,
-    LeftNote,
-    LeftNoteLong,
-    RightRightNote,
-    LeftLeftNote,
-    BlueNote
+    MainNote,         //0
+    BlueNote,         //1
+    MainNoteLong,     //2
+    RightNote,        //3
+    RightNoteLong,    //4
+    LeftNote,         //5
+    LeftNoteLong,     //6
+    RightRightNote,   //7
+    LeftLeftNote,     //8
 }
 
 public enum NoteType
@@ -132,6 +132,7 @@ public class ScoreManager : MonoBehaviour
         {
             TotalScore = noteScore[noteIndex] * judgmentMultiplier[judgmentIndex]; //スコアの加算
             judgmentCounter[judgmentIndex]++; 　　　　　　　　　　　　　　　　　　　//ノーツ評価をカテゴリ別にカウントする。
+            //ノーツ評価を画面上に表示する。
         }
         else
         {

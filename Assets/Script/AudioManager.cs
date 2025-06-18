@@ -16,10 +16,11 @@ public class AudioManager : MonoBehaviour
     public List<int> LaneNum = new List<int>();                //何番のレーンにノーツが落ちてくるか。
     public List<int> NoteType = new List<int>();               //ノーツの種類
     public List<float> NotesTime = new List<float>();          //ノーツが判定線と重なる時間。
-    public List<GameObject> NotesObj = new List<GameObject>(); //ノーツオブジェクトを格納する変数。
+    List<GameObject> NotesObj = new List<GameObject>(); //ノーツオブジェクトを格納する変数。
+    public int memoraizeNoteNum = 0;  
 
     [SerializeField] private float NotesSpeed;                     //ノーツの速度。
-    [SerializeField] GameObject notePrefab;                           //ノーツPrefab。
+    [SerializeField] GameObject[] notesPrefab = new GameObject[9];                     //ノーツPrefab。
 
     //public void AudioSelect() //引数を用意
     //{
@@ -32,7 +33,7 @@ public class AudioManager : MonoBehaviour
     IEnumerator PlayAudio()
     {
         //if (CountDown <= 0)
-        yield return new WaitForSeconds(100f); //3f
+        yield return new WaitForSeconds(3f); //3f
         bgmSource.clip = bgmClip[0]; //のちにインデックスは引数で決定する仕様に。
         noteNum = 0;
         songName = "SAIL AWAY";
@@ -47,16 +48,40 @@ public class AudioManager : MonoBehaviour
         noteNum = inputJson.notes.Length;
         for (int i = 0; i < inputJson.notes.Length; i++)
         {
+            GameObject notePrefab = notesPrefab[inputJson.notes[i].block];
             float kankaku = 60 / (inputJson.BPM * (float)inputJson.notes[i].LPB); //間隔　とは　一分間で何回ビートがあるのか、と 1拍につきいくつのラインがるのか　で掛けた値を60で割ったもの。
             float beatSec = kankaku * (float)inputJson.notes[i].LPB;
             float time = (beatSec * inputJson.notes[i].num / (float)inputJson.notes[i].LPB) + inputJson.offset + 0.01f;
             NotesTime.Add(time);
             LaneNum.Add(inputJson.notes[i].block);
-            NoteType.Add(inputJson.notes[i].type);
+            NoteType.Add(inputJson.notes[i].type); //Listに登録しておいて、終点のLongNoteが見つかった場合にそちらをインスタンシエートする。
 
             float z = NotesTime[i] * NotesSpeed + 1f;
-            //Debug.Log(z);
-            NotesObj.Add(Instantiate(notePrefab, new Vector3(inputJson.notes[i].block, 0.8f, z), Quaternion.identity));
+
+            if (inputJson.notes[i].type == 2
+                &&
+                memoraizeNoteNum == 0)
+            {
+                memoraizeNoteNum = inputJson.notes[i].num;
+                continue;
+            }
+            else if (inputJson.notes[i].type == 2
+                &&
+                memoraizeNoteNum != 0)
+            {
+                Debug.Log($"i == {i} のbeforeZは{z}です。");
+                int longMultiplier = inputJson.notes[i].num - memoraizeNoteNum;
+                notePrefab.transform.localScale = new Vector3(notePrefab.transform.localScale.x, notePrefab.transform.localScale.y, notePrefab.transform.localScale.z * longMultiplier);
+                Debug.Log($"notePrefab.transform.localScale == {notePrefab.transform.localScale}");
+                z = z - (0.015688f * longMultiplier);
+                memoraizeNoteNum = 0;
+                NotesObj.Add(Instantiate(notePrefab, new Vector3(0, 0.8f, z), Quaternion.identity));
+                Debug.Log($"afterZ == {z}です。");
+                notePrefab.transform.localScale = new Vector3(notePrefab.transform.localScale.x, notePrefab.transform.localScale.y, notePrefab.transform.localScale.z / longMultiplier);
+                continue;
+            }
+            NotesObj.Add(Instantiate(notePrefab, new Vector3(notePrefab.transform.position.x, notePrefab.transform.position.y, z), notePrefab.transform.rotation));
+            Debug.Log($"i == {i} のblockは {inputJson.notes[i].block}, numは{inputJson.notes[i].num}, typは{inputJson.notes[i].type}");
         }
     }
 }
@@ -68,8 +93,9 @@ public class Data
     public int maxBlock;
     public int BPM;
     public int offset;
+    //public int noteLength;
     public Note[] notes;
-
+    // + LPB があるはず。
 }
 [Serializable]
 public class Note

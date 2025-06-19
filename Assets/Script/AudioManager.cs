@@ -33,7 +33,7 @@ public class AudioManager : MonoBehaviour
     IEnumerator PlayAudio()
     {
         //if (CountDown <= 0)
-        yield return new WaitForSeconds(3f); //3f
+        yield return new WaitForSeconds(5f); //3f
         bgmSource.clip = bgmClip[0]; //のちにインデックスは引数で決定する仕様に。
         noteNum = 0;
         songName = "SAIL AWAY";

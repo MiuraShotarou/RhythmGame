@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public enum NoteCategory //未使用
 {
@@ -19,7 +20,8 @@ public enum NoteCategory //未使用
 public enum NoteType
 {
     Normal,
-    Long
+    Long,
+    Blue
 }
 public enum Judgment
 {
@@ -56,7 +58,7 @@ public class ScoreManager : MonoBehaviour
         }
     }
 
-    float[] noteScore = { 10f, 1f }; //長押し系ノーツは10/10 → 1score / 1second
+    float[] noteScore = { 10f, 1f, 12f }; //長押し系ノーツは10/10 → 1score / 1second
     float[] judgmentMultiplier = { 0f, 0.8f, 1.0f, 1.2f };
     float[] rankMultiplier = { 0.8f, 1.0f, 1.3f, 1.8f, 2.0f };
 
@@ -64,7 +66,11 @@ public class ScoreManager : MonoBehaviour
 
     public NoteType JudgNoteType(string tag)
     {
-        if (!tag.Contains("Long"))
+        if (tag.Contains("Blue"))
+        {
+            return NoteType.Blue;
+        }
+        else if (!tag.Contains("Long"))
         {
             return NoteType.Normal;
         }
@@ -109,6 +115,9 @@ public class ScoreManager : MonoBehaviour
                 break;
             case NoteType.Long:
                 noteIndex = 1;
+                break;
+            case NoteType.Blue:
+                noteIndex = 2;
                 break;
         }
         switch (judgment)

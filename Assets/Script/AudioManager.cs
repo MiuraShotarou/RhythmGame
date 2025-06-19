@@ -56,7 +56,7 @@ public class AudioManager : MonoBehaviour
             LaneNum.Add(inputJson.notes[i].block);
             NoteType.Add(inputJson.notes[i].type); //Listに登録しておいて、終点のLongNoteが見つかった場合にそちらをインスタンシエートする。
 
-            float z = NotesTime[i] * NotesSpeed + 1f;
+            float z = NotesTime[i] * NotesSpeed + 0.8f;
 
             if (inputJson.notes[i].type == 2
                 &&

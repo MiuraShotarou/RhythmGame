@@ -10,6 +10,7 @@ public class BallController : MonoBehaviour
 {
     [SerializeField] ScoreManager scoreManager;
     [SerializeField] HealthManager healthManager;
+    GameObject arrowPlane;
     Rigidbody rigidbody;
     float pushPower = 3f;
     float miniY = 0.82f;
@@ -19,13 +20,12 @@ public class BallController : MonoBehaviour
     bool isBlue = false;
     public static bool isNotDamage = false;
     bool isNotBlockDamage = false;
+    bool isColorChange = false;
 
-    GameObject bluePlane;
     // Start is called before the first frame update
     void Start()
     {
-        bluePlane = transform.GetChild(0).gameObject;
-        Debug.Log(bluePlane);
+        arrowPlane = transform.GetChild(0).gameObject;
         rigidbody = GetComponent<Rigidbody>();
     }
 
@@ -61,7 +61,12 @@ public class BallController : MonoBehaviour
         else if (Input.GetButtonDown("ChangeBlue")) //試験的
         {
             isBlue = true;
-            bluePlane.SetActive(true);
+            arrowPlane.SetActive(true);
+        }
+        else if (Input.GetButtonDown("ChangeRed"))
+        {
+            isBlue = false;
+            arrowPlane.SetActive(false);
         }
 
         if (transform.position.x == 0
@@ -87,20 +92,15 @@ public class BallController : MonoBehaviour
     Judgment judgment;
     private void OnTriggerEnter(Collider other)
     {
-
         if (other.gameObject.CompareTag("RightBlade"))
         {
             //Debug.Log("接触・RightBlade");
             StartCoroutine(OnBounceBallRightBlade());
-
-            bluePlane.SetActive(false);
         }
         else if (other.gameObject.CompareTag("LeftBlade"))
         {
             //Debug.Log("接触・LeftBlade");
             StartCoroutine(OnBounceBallLeftBlade());
-
-            bluePlane.SetActive(false);
         }
         else if (other.gameObject.CompareTag("MainNote")
             ||
@@ -115,7 +115,7 @@ public class BallController : MonoBehaviour
                 healthManager.Damage();
                 PosReset("Other"); //追加
                 isBlue = false;
-                bluePlane.SetActive(false);
+                arrowPlane.SetActive(false);
                 return;
             }
 
@@ -132,8 +132,10 @@ public class BallController : MonoBehaviour
                 scoreManager.CalculateScore(noteType, judgment);
             }
         }
-        else if (other.gameObject.CompareTag("BlueNote")) //怪しい
+        else if (other.gameObject.CompareTag("BlueNote"))
         {
+            isNotDamage = true;
+
             if (!isBlue)
             {
                 Transform crackTrs = other.transform.GetChild(2);
@@ -141,11 +143,10 @@ public class BallController : MonoBehaviour
                 return;
                 //見た目を変える。
             }
-            isBlue = false;
-            bluePlane.SetActive(false);
 
-            isNotDamage = true;
             miniY = 0.85f;
+            isBlue = false;
+            arrowPlane.SetActive(false);
 
             if (!other.gameObject.GetComponent<NoteController>().IsCollision)
             {
@@ -162,7 +163,7 @@ public class BallController : MonoBehaviour
         {
             isNotBlockDamage = true;
             rigidbody.velocity = Vector3.zero;
-            Vector3 forceDirection = new Vector3(-1f, 0.1f, 0f);
+            Vector3 forceDirection = new Vector3(-1f, 0.4f, 0f);
             rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
             StartCoroutine(ActiveGravityAndAntiGravity(0.1f)); //移植
 
@@ -170,7 +171,8 @@ public class BallController : MonoBehaviour
             {
                 healthManager.Damage();
                 isBlue = false;
-                bluePlane.SetActive(false);
+                arrowPlane.SetActive(false);
+                return;
             }
 
             if (!other.gameObject.GetComponent<NoteController>().IsCollision) //スコアの計算式。
@@ -184,11 +186,11 @@ public class BallController : MonoBehaviour
                 scoreManager.CalculateScore(noteType, judgment);
             }
         }
-        else if (other.gameObject.CompareTag("LeftLeftNote")) //スコアの計算式がない。
+        else if (other.gameObject.CompareTag("LeftLeftNote"))
         {
             isNotBlockDamage = true;
             rigidbody.velocity = Vector3.zero;
-            Vector3 forceDirection = new Vector3(1f, 0.1f, 0f);
+            Vector3 forceDirection = new Vector3(1f, 0.4f, 0f);
             rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
             StartCoroutine(ActiveGravityAndAntiGravity(0.1f)); //移植
 
@@ -196,7 +198,8 @@ public class BallController : MonoBehaviour
             {
                 healthManager.Damage();
                 isBlue = false;
-                bluePlane.SetActive(false);
+                arrowPlane.SetActive(false);
+                return;
             }
 
             if (!other.gameObject.GetComponent<NoteController>().IsCollision) //スコアの計算式。
@@ -220,7 +223,7 @@ public class BallController : MonoBehaviour
             StartCoroutine(ActiveGravityAndAntiGravity(1f)); //移植
 
             isBlue = false;
-            bluePlane.SetActive(false);
+            arrowPlane.SetActive(false);
             healthManager.Damage();
             //StartCoroutine(PosReset("RightDamageBlock"));
         }
@@ -234,7 +237,7 @@ public class BallController : MonoBehaviour
             StartCoroutine(ActiveGravityAndAntiGravity(1f)); //いじり
 
             isBlue = false;
-            bluePlane.SetActive(false);
+            arrowPlane.SetActive(false);
             healthManager.Damage();
             //StartCoroutine(PosReset("LeftDamageBlock"));
         }
@@ -246,6 +249,11 @@ public class BallController : MonoBehaviour
             //Debug.Log($"{other.gameObject}などに当たっている");
             healthManager.Damage();
             PosReset("Other"); //追加
+            if (isBlue)
+            {
+                isBlue = false;
+                arrowPlane.SetActive(false);
+            }
         }
     }
     private void OnTriggerStay(Collider other)
@@ -279,7 +287,6 @@ public class BallController : MonoBehaviour
             //transform.position = pos;
         }
     }
-
 
     IEnumerator OnBounceBallRightBlade()
     {

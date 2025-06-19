@@ -9,6 +9,7 @@ public class HealthManager : MonoBehaviour
 {
     [SerializeField] Transform cameraTransform;
     [SerializeField] GameObject crackedGlass;
+    [SerializeField] GameObject sideCrackglass;
     [SerializeField] GameObject ball;
     public int health = 2;
 
@@ -71,8 +72,8 @@ public class HealthManager : MonoBehaviour
                     //Time.timeScale = 1f;
 
                     Instantiate(crackedGlass, new Vector3(0f, 0.25f, i), Quaternion.identity);
-                    Instantiate(crackedGlass, new Vector3(-0.6f, 1, i), Quaternion.identity);
-                    Instantiate(crackedGlass, new Vector3(0.6f, 1, i), Quaternion.identity);
+                    Instantiate(sideCrackglass, new Vector3(-0.95f, 1, i), Quaternion.identity);
+                    Instantiate(sideCrackglass, new Vector3(0.95f, 1, i), Quaternion.identity);
                     yield return new WaitForSeconds(0f);
                 }
                 break;
@@ -81,8 +82,8 @@ public class HealthManager : MonoBehaviour
         while (!isGameOver)
         {
             var objF = Instantiate(crackedGlass, new Vector3(0f, 0.25f, 11), Quaternion.identity);
-            var objR = Instantiate(crackedGlass, new Vector3(-0.6f, 1, 11), Quaternion.identity);
-            var objL = Instantiate(crackedGlass, new Vector3(0.6f, 1, 11), Quaternion.identity);
+            var objR = Instantiate(sideCrackglass, new Vector3(-0.95f, 1, 11), Quaternion.identity);
+            var objL = Instantiate(sideCrackglass, new Vector3(0.95f, 1, 11), Quaternion.identity);
             Destroy(objF, 10f);
             Destroy(objR, 10f);
             Destroy(objL, 10f);

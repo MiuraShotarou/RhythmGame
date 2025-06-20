@@ -1,10 +1,18 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Audio;
+using UnityEngine.UI;
 
 public class AudioManager : MonoBehaviour
 {
+    [SerializeField] AudioMixer Audio_Mixer;
+    [SerializeField] Slider BGM_Slider;
+    [SerializeField] Slider SE_Slider;
+
+
     public List<AudioClip> bgmClip;
     public List<AudioClip> seClip;
     public AudioSource bgmSource;
@@ -28,7 +36,30 @@ public class AudioManager : MonoBehaviour
     //}
     private void Start()
     {
-        StartCoroutine(PlayAudio());
+        bgmSource.clip = bgmClip[0];
+        //bgmSource.Play();
+        ActiveAudioMixer();
+
+        //StartCoroutine(PlayAudio());
+    }
+    void ActiveAudioMixer()
+    {
+        BGM_Slider.onValueChanged.AddListener((value) =>
+        {
+            value = Mathf.Clamp01(value);
+
+            float decibel = 20f * Mathf.Log10(value);
+            decibel = Mathf.Clamp(decibel, -80, 0);
+            Audio_Mixer.SetFloat("BGM_Mixer", decibel);
+        });
+        SE_Slider.onValueChanged.AddListener((value) =>
+        {
+            value = Mathf.Clamp01(value);
+
+            float decibel = 20f * Mathf.Log10(value);
+            decibel = Mathf.Clamp(decibel, -80, 0);
+            Audio_Mixer.SetFloat("SE_Mixer", decibel);
+        });
     }
     IEnumerator PlayAudio()
     {

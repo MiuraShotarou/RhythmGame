@@ -12,11 +12,16 @@ public class AudioManager : MonoBehaviour
     [SerializeField] Slider BGM_Slider;
     [SerializeField] Slider SE_Slider;
 
+    public AudioSource bgmSource;
+    public AudioSource seSource;
 
     public List<AudioClip> bgmClip;
     public List<AudioClip> seClip;
-    public AudioSource bgmSource;
-    public AudioSource seSource;
+    public AudioClip settingBGMClip;
+    public AudioClip settingSEClip;
+
+    static int _selectBGMIndex = 0;
+    public int SelectedBGMIndex { get { return _selectBGMIndex; } set { _selectBGMIndex = value; if (_selectBGMIndex >= bgmClip.Count) { _selectBGMIndex = 0; } } }
 
     public int noteNum;       //総ノーツ数
     private string songName;  //曲名
@@ -30,13 +35,9 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private float NotesSpeed;                     //ノーツの速度。
     [SerializeField] GameObject[] notesPrefab = new GameObject[9];                     //ノーツPrefab。
 
-    //public void AudioSelect() //引数を用意
-    //{
-    //if (i == 0);
-    //}
     private void Start()
     {
-        bgmSource.clip = bgmClip[0];
+        //bgmSource.clip = bgmClip[0];
         //bgmSource.Play();
         ActiveAudioMixer();
 
@@ -65,7 +66,7 @@ public class AudioManager : MonoBehaviour
     {
         //if (CountDown <= 0)
         yield return new WaitForSeconds(5f); //3f
-        bgmSource.clip = bgmClip[0]; //のちにインデックスは引数で決定する仕様に。
+        //bgmSource.clip = bgmClip[0]; //のちにインデックスは引数で決定する仕様に。
         noteNum = 0;
         songName = "SAIL AWAY";
         Load(songName);

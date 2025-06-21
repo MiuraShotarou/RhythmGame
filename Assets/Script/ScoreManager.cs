@@ -42,12 +42,11 @@ public enum Rank
 public class ScoreManager : MonoBehaviour
 {
     static int _score;
-    public static int Score { get { return _score; } set { _score = value; } }
-
-    float ownershipScore; //リザルト画面・曲のセレクト画面に使用。
-
-    //フィールド変数の定義
+    static List<int> _BGMScore;
     float _totalScore;
+    public static int Score { get { return _score; } set { _score = value; } }    //保有スコア。
+    public static List<int> BGMScore { get { return _BGMScore; } set { _BGMScore = value; } }
+
     public float TotalScore //リザルト画面に使用。
     {
         get {return _totalScore;}
@@ -56,7 +55,6 @@ public class ScoreManager : MonoBehaviour
             if (_totalScore != _totalScore + value)
             {
                 _totalScore += value;
-                //Debug.Log($"スコアに加点。value{value}, totalScore{_totalScore}"); //スコアがちゃんと加算されているかの確認
             }
         }
     }
@@ -65,7 +63,9 @@ public class ScoreManager : MonoBehaviour
     float[] judgmentMultiplier = { 0f, 0.8f, 1.0f, 1.2f };
     float[] rankMultiplier = { 0.8f, 1.0f, 1.3f, 1.8f, 2.0f };
 
-    float[] judgmentCounter = new float[4];
+    int[] judgmentCounter = new int[4];
+
+    //public Dictionary<int, NoteType> foreachBGMNoteCointer;
 
     public NoteType JudgNoteType(string tag)
     {
@@ -144,6 +144,7 @@ public class ScoreManager : MonoBehaviour
         {
             TotalScore = noteScore[noteIndex] * judgmentMultiplier[judgmentIndex]; //スコアの加算
             judgmentCounter[judgmentIndex]++; 　　　　　　　　　　　　　　　　　　　//ノーツ評価をカテゴリ別にカウントする。
+
             //ノーツ評価を画面上に表示する。
         }
         else

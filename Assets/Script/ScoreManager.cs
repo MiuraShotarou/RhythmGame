@@ -41,6 +41,9 @@ public enum Rank
 
 public class ScoreManager : MonoBehaviour
 {
+    static int _score;
+    public static int Score { get { return _score; } set { _score = value; } }
+
     float ownershipScore; //リザルト画面・曲のセレクト画面に使用。
 
     //フィールド変数の定義

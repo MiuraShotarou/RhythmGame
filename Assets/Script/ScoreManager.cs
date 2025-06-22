@@ -41,24 +41,7 @@ public enum Rank
 
 public class ScoreManager : MonoBehaviour
 {
-    static int _score;
-    static List<int> _BGMScore;
-    float _totalScore;
-    public static int Score { get { return _score; } set { _score = value; } }    //保有スコア。
-    public static List<int> BGMScore { get { return _BGMScore; } set { _BGMScore = value; } }
-
-    public float TotalScore //リザルト画面に使用。
-    {
-        get {return _totalScore;}
-        set
-        {
-            if (_totalScore != _totalScore + value)
-            {
-                _totalScore += value;
-            }
-        }
-    }
-
+    public float totalScore;
     float[] noteScore = { 10f, 1f, 12f }; //長押し系ノーツは10/10 → 1score / 1second
     float[] judgmentMultiplier = { 0f, 0.8f, 1.0f, 1.2f };
     float[] rankMultiplier = { 0.8f, 1.0f, 1.3f, 1.8f, 2.0f };
@@ -142,7 +125,7 @@ public class ScoreManager : MonoBehaviour
         if (noteIndex != -1
             && judgmentIndex != -1)
         {
-            TotalScore = noteScore[noteIndex] * judgmentMultiplier[judgmentIndex]; //スコアの加算
+            totalScore = noteScore[noteIndex] * judgmentMultiplier[judgmentIndex]; //スコアの加算
             judgmentCounter[judgmentIndex]++; 　　　　　　　　　　　　　　　　　　　//ノーツ評価をカテゴリ別にカウントする。
 
             //ノーツ評価を画面上に表示する。

@@ -8,72 +8,35 @@ using UnityEngine.UI;
 
 public class AudioManager : MonoBehaviour
 {
-    [SerializeField] AudioMixer Audio_Mixer;
-    [SerializeField] Slider BGM_Slider;
-    [SerializeField] Slider SE_Slider;
-
-    public AudioSource bgmSource;
-    public AudioSource seSource;
-
-    public List<AudioClip> bgmClip;
-    public List<AudioClip> seClip;
-    public AudioClip settingBGMClip;
-    public AudioClip settingSEClip;
-
-    static int _selectBGMIndex = 0;
-    public int SelectedBGMIndex { get { return _selectBGMIndex; } set { _selectBGMIndex = value; if (_selectBGMIndex >= bgmClip.Count) { _selectBGMIndex = 0; } } }
-
-    public int noteNum;       //総ノーツ数
-    private string songName;  //曲名
-
-    public List<int> LaneNum = new List<int>();                //何番のレーンにノーツが落ちてくるか。
-    public List<int> NoteType = new List<int>();               //ノーツの種類
-    public List<float> NotesTime = new List<float>();          //ノーツが判定線と重なる時間。
+    int noteNum;       //総ノーツ数
+ 
+    List<int> LaneNum = new List<int>();                //何番のレーンにノーツが落ちてくるか。
+    List<int> NoteType = new List<int>();               //ノーツの種類
+    List<float> NotesTime = new List<float>();          //ノーツが判定線と重なる時間。
     List<GameObject> NotesObj = new List<GameObject>(); //ノーツオブジェクトを格納する変数。
-    public int memoraizeNoteNum = 0;  
 
+    int memoraizeNoteNum = 0;  
     [SerializeField] private float NotesSpeed;                     //ノーツの速度。
     [SerializeField] GameObject[] notesPrefab = new GameObject[9];                     //ノーツPrefab。
 
-    private void Start()
-    {
-        //bgmSource.clip = bgmClip[0];
-        //bgmSource.Play();
-        ActiveAudioMixer();
-
-        //StartCoroutine(PlayAudio());
-    }
-    void ActiveAudioMixer()
-    {
-        BGM_Slider.onValueChanged.AddListener((value) =>
-        {
-            value = Mathf.Clamp01(value);
-
-            float decibel = 20f * Mathf.Log10(value);
-            decibel = Mathf.Clamp(decibel, -80, 0);
-            Audio_Mixer.SetFloat("BGM_Mixer", decibel);
-        });
-        SE_Slider.onValueChanged.AddListener((value) =>
-        {
-            value = Mathf.Clamp01(value);
-
-            float decibel = 20f * Mathf.Log10(value);
-            decibel = Mathf.Clamp(decibel, -80, 0);
-            Audio_Mixer.SetFloat("SE_Mixer", decibel);
-        });
-    }
-    IEnumerator PlayAudio()
+    public IEnumerator Play()
     {
         //if (CountDown <= 0)
-        yield return new WaitForSeconds(5f); //3f
-        //bgmSource.clip = bgmClip[0]; //のちにインデックスは引数で決定する仕様に。
-        noteNum = 0;
-        songName = "SAIL AWAY";
-        Load(songName);
-        bgmSource.Play();
+        //noteNum = 0;
+        string songName = GameManager.BGMClip[GameManager.SelectedBGMIndex].name;
+        if (GameManager.SelectedBGMIndex == 0)
+        {
+            songName = $"{songName} Tutorial";
+        }
+        Debug.Log($"songName{songName}");
+        PlayBGM(songName);
+        yield break;
     }
-    void Load(string SongName)
+    void PlayBGM(string SongName)
     {
+        GameManager.BGMSource.clip = GameManager.BGMClip[GameManager.SelectedBGMIndex]; //のちにインデックスは引数で決定する仕様に。
+        GameManager.BGMSource.Play();
+
         string inputString = Resources.Load<TextAsset>(SongName).ToString(); //SongName ← string "テスト";
         Data inputJson = JsonUtility.FromJson<Data>(inputString);            //JsonUtility.FromJson<Data>(inputString);
 
@@ -117,7 +80,7 @@ public class AudioManager : MonoBehaviour
         }
     }
 }
-        //それと同時に、ノーツの生成も行うという仕組みに。
+
 [Serializable]
 public class Data
 {
@@ -125,9 +88,7 @@ public class Data
     public int maxBlock;
     public int BPM;
     public int offset;
-    //public int noteLength;
     public Note[] notes;
-    // + LPB があるはず。
 }
 [Serializable]
 public class Note
@@ -137,8 +98,3 @@ public class Note
     public int block;
     public int LPB;
 }
-//public class NoteGenerator : AudioManager
-//{
-//    Dictionary<NoteCategory, float, >;
-//    //List<float> noteList
-//}

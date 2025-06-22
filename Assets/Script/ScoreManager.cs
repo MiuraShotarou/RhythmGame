@@ -152,20 +152,4 @@ public class ScoreManager : MonoBehaviour
             Debug.Log("Index‚ªãè‚­Š„‚è“–‚Ä‚ç‚ê‚Ä‚¢‚È‚¢");
         }
     }
-    void Start()
-    {
-        Application.targetFrameRate = 60;
-    }
-
-    float deltaTime = 0.0f;
-    void Update()
-    {
-        deltaTime += (Time.deltaTime - deltaTime) * 0.1f;
-    }
-    void OnGUI() //’m‚ç‚È‚¢ŠÖ”
-    {
-        float fps = 1.0f / deltaTime;
-        string text = string.Format("{0:0.} FPS", fps);
-        GUI.Label(new Rect(10, 10, 100, 25), text);
-    }
 }

@@ -9,7 +9,7 @@ using UnityEngine.ProBuilder;
 public class BallController : MonoBehaviour
 {
     [SerializeField] ScoreManager scoreManager;
-    [SerializeField] HealthManager healthManager;
+    [SerializeField] InGameManager healthManager;
     GameObject arrowPlane;
     Rigidbody rigidbody;
     float pushPower = 3f;

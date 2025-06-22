@@ -655,7 +655,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scoreManager: {fileID: 2055194135}
-  healthManager: {fileID: 2055194134}
+  healthManager: {fileID: 0}
   sparksEffect: {fileID: 1849268757}
 --- !u!1 &239873450
 GameObject:
@@ -1346,7 +1346,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &622468289
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4784,7 +4784,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scoreManager: {fileID: 2055194135}
-  healthManager: {fileID: 2055194134}
+  healthManager: {fileID: 0}
 --- !u!135 &1608953217
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -39764,7 +39764,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scoreManager: {fileID: 2055194135}
-  healthManager: {fileID: 2055194134}
+  healthManager: {fileID: 0}
   sparksEffect: {fileID: 4503612901674018874}
 --- !u!1 &1797043973
 GameObject:
@@ -45145,17 +45145,15 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2055194133}
-  - component: {fileID: 2055194134}
   - component: {fileID: 2055194135}
   - component: {fileID: 2055194137}
-  - component: {fileID: 2055194138}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2055194133
 Transform:
   m_ObjectHideFlags: 0
@@ -45173,23 +45171,6 @@ Transform:
   - {fileID: 1498872487}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2055194134
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2055194131}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f164d947f8629a64cb01a38d9e0caf7d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cameraTransform: {fileID: 963194228}
-  crackedGlass: {fileID: 8160365256597680211, guid: f5b7a3a2d1bbe224b910ed935f04cc64, type: 3}
-  sideCrackglass: {fileID: 8160365256597680211, guid: 6e82c1b3a332d344ea1d3533f72996c2, type: 3}
-  ball: {fileID: 1608953210}
-  health: 2
 --- !u!114 &2055194135
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -45214,14 +45195,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ee5a5687f06ae44eba9adfd274e69ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Audio_Mixer: {fileID: 0}
+  BGM_Slider: {fileID: 0}
+  SE_Slider: {fileID: 0}
+  bgmSource: {fileID: 28494053}
+  seSource: {fileID: 1498872486}
   bgmClip:
   - {fileID: 8300000, guid: dc16e26350444234eaf903236bab0f1d, type: 3}
   seClip:
   - {fileID: 8300000, guid: be7c070b69cf0294ab6d3b97bb14a774, type: 3}
   - {fileID: 8300000, guid: e907986a3d604114182181921f16d990, type: 3}
   - {fileID: 8300000, guid: f54d16471dd81454ba86f0ba8499cbc1, type: 3}
-  bgmSource: {fileID: 28494053}
-  seSource: {fileID: 1498872486}
+  settingBGMClip: {fileID: 0}
+  settingSEClip: {fileID: 0}
   noteNum: 0
   LaneNum: 
   NoteType: 
@@ -45238,20 +45224,6 @@ MonoBehaviour:
   - {fileID: 5491822285433037133, guid: 6b7d7ca978402994fb597a5ec44ca21c, type: 3}
   - {fileID: 1136573593948528080, guid: 8f9cf10b87ba9a34ebe6ca72d32a9db4, type: 3}
   - {fileID: 389680012098123382, guid: 7935ad37505631d409369b9e123fd252, type: 3}
---- !u!114 &2055194138
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2055194131}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec62a49dcf3fbb44e9f08e64d205d1be, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pointLightObject: {fileID: 1797043973}
-  spotLightObject: {fileID: 1069358974}
 --- !u!1 &2142911688
 GameObject:
   m_ObjectHideFlags: 0

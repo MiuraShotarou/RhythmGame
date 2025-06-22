@@ -9,7 +9,7 @@ using UnityEngine.UIElements;
 public class RightBladeController : MonoBehaviour
 {
     [SerializeField] ScoreManager scoreManager;
-    [SerializeField] HealthManager healthManager;
+    [SerializeField] InGameManager healthManager;
     [SerializeField] GameObject sparksEffect;
     //[SerializeField] ParticleSystem particleSystem;
     Rigidbody rigidbody;

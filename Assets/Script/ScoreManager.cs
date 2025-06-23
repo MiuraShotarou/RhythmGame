@@ -125,7 +125,7 @@ public class ScoreManager : MonoBehaviour
         if (noteIndex != -1
             && judgmentIndex != -1)
         {
-            totalScore = noteScore[noteIndex] * judgmentMultiplier[judgmentIndex]; //スコアの加算
+            totalScore += noteScore[noteIndex] * judgmentMultiplier[judgmentIndex]; //スコアの加算
             judgmentCounter[judgmentIndex]++; 　　　　　　　　　　　　　　　　　　　//ノーツ評価をカテゴリ別にカウントする。
 
             //ノーツ評価を画面上に表示する。

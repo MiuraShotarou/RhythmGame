@@ -9,7 +9,7 @@ using UnityEngine.UIElements;
 public class LeftBladeController : MonoBehaviour
 {
     [SerializeField] ScoreManager scoreManager;
-    [SerializeField] InGameManager healthManager;
+    [SerializeField] InGameManager inGameManager;
     [SerializeField] GameObject sparksEffect;
     //[SerializeField] ParticleSystem particleSystem;
     Rigidbody rigidbody;
@@ -44,7 +44,6 @@ public class LeftBladeController : MonoBehaviour
         {
             rigidbody.velocity = Vector3.zero;
         }
-
 
         if (Input.GetButtonDown("LeftBlade")
             &&
@@ -85,6 +84,11 @@ public class LeftBladeController : MonoBehaviour
             ||
             collision.gameObject.CompareTag("LeftNoteLong"))
         {
+            if (GameManager.IsTutorial)
+            {
+                GameManager.IsLoop = false;
+            }
+
             BallController.isNotDamage = true;
             Vector3 pos = transform.position;
             pos.x = Mathf.Clamp(pos.x, -0.20404f, -0.053f);
@@ -106,7 +110,7 @@ public class LeftBladeController : MonoBehaviour
         else
         {
             isDamageReturn = true;
-            healthManager.Damage();
+            inGameManager.Damage();
             StartCoroutine(posReset());
         }
     }

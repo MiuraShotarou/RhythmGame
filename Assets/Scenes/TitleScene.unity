@@ -2696,6 +2696,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: be7c070b69cf0294ab6d3b97bb14a774, type: 3}
   - {fileID: 8300000, guid: e907986a3d604114182181921f16d990, type: 3}
   - {fileID: 8300000, guid: f54d16471dd81454ba86f0ba8499cbc1, type: 3}
+  - {fileID: 8300000, guid: 570da63fb18131f48a73979895ce22e7, type: 3}
+  - {fileID: 8300000, guid: 9939fdb10de60d649aba0986bf3929f1, type: 3}
   settingBGMClip: {fileID: 8300000, guid: ec490bd9f34f98941b4c8d5408fe074f, type: 3}
   settingSEClip: {fileID: 8300000, guid: be7c070b69cf0294ab6d3b97bb14a774, type: 3}
   Audio_Mixer: {fileID: 24100000, guid: e46f66444c617b040a583ffddb7a2a50, type: 2}

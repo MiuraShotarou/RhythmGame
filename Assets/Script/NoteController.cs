@@ -17,11 +17,13 @@ public class NoteController : MonoBehaviour
 
     void CrashNote()
     {
-        //GameObject effectObj = GetComponentInChildren<GameObject>();
-        //ParticleSystem particleSystem = effectObj.GetComponent<ParticleSystem>();
+        AudioSource audioSource = GetComponent<AudioSource>();
+        if (GameManager.IsTutorial)
+        {
+            audioSource.Play();
+        }
 
         ParticleSystem particleSystem = GetComponentInChildren<ParticleSystem>();
-        //Animator animator = GetComponent<Animator>();
 
         //Debug.Log(animator.name);
         if (particleSystem != null
@@ -30,7 +32,7 @@ public class NoteController : MonoBehaviour
             )
         {
             particleSystem.Emit(1);                                                 //プレファブ毎にパーティクルシステムを変えれば良い
-            //animator.Play("CrushImage");
+
         }
         else if (particleSystem == null)
         {

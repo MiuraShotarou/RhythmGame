@@ -9,22 +9,23 @@ using UnityEngine.ProBuilder;
 public class BallController : MonoBehaviour
 {
     [SerializeField] ScoreManager scoreManager;
-    [SerializeField] InGameManager healthManager;
+    [SerializeField] InGameManager inGameManager;
+
     GameObject arrowPlane;
     Rigidbody rigidbody;
     float pushPower = 3f;
     float miniY = 0.82f;
-
     bool ischecked = false;
-    bool isInvalid = true;
     bool isBlue = false;
     public static bool isNotDamage = false;
     bool isNotBlockDamage = false;
     bool isColorChange = false;
 
+    AudioSource audioSource;
     // Start is called before the first frame update
     void Start()
     {
+        //audioSource = GetComponent<AudioSource>();
         arrowPlane = transform.GetChild(0).gameObject;
         rigidbody = GetComponent<Rigidbody>();
     }
@@ -40,19 +41,19 @@ public class BallController : MonoBehaviour
     void FixedUpdate()
     {
         if (Input.GetButtonDown("PushBall")
-            && isInvalid)
+            && !GameManager.IsInvalid)
         {
             rigidbody.velocity = Vector3.zero;
             rigidbody.AddForce(Vector2.down * pushPower, ForceMode.Impulse);
         }
         else if (Input.GetButtonUp("PushBall")
-            && isInvalid)
+            && !GameManager.IsInvalid)
         {
             rigidbody.velocity = Vector3.zero;
             rigidbody.AddForce(Vector2.up * pushPower, ForceMode.Impulse);
         }
         else if (Input.GetButton("PushBall")
-            && isInvalid)
+            && !GameManager.IsInvalid)
         {
             //rigidbody.velocity = Vector3.zero;
             //Debug.Log("Hold呼ばれた");
@@ -70,7 +71,7 @@ public class BallController : MonoBehaviour
         }
 
         if (transform.position.x == 0
-            && isInvalid)
+            && !GameManager.IsInvalid)
         {
             //Debug.Log("Gravityが戻った");
             AntiGravityDeviceControler.isAntiGravity = true;
@@ -92,6 +93,8 @@ public class BallController : MonoBehaviour
     Judgment judgment;
     private void OnTriggerEnter(Collider other)
     {
+        //Debug.Log("実はトリガーしている");
+        //audioSource.Play();
         if (other.gameObject.CompareTag("RightBlade"))
         {
             //Debug.Log("接触・RightBlade");
@@ -106,13 +109,18 @@ public class BallController : MonoBehaviour
             ||
             other.gameObject.CompareTag("MainNoteLong")) //連続でNoteを叩く場合、前NoteのJudgmentLineZが当たった時間 + 0.115fの間に次NoteがJudgmentLineZに当たってはいけない。
         {
+            if (GameManager.IsTutorial)
+            {
+                GameManager.IsLoop = false;
+            }
+
             if (!isBlue)
             {
                 isNotDamage = true;
             }
             else if (isBlue)
             {
-                healthManager.Damage();
+                inGameManager.Damage();
                 PosReset("Other"); //追加
                 isBlue = false;
                 arrowPlane.SetActive(false);
@@ -134,6 +142,11 @@ public class BallController : MonoBehaviour
         }
         else if (other.gameObject.CompareTag("BlueNote"))
         {
+            if (GameManager.IsTutorial)
+            {
+                GameManager.IsLoop = false;
+            }
+
             isNotDamage = true;
 
             if (!isBlue)
@@ -161,6 +174,11 @@ public class BallController : MonoBehaviour
         }
         else if (other.gameObject.CompareTag("RightRightNote"))
         {
+            if (GameManager.IsTutorial)
+            {
+                GameManager.IsLoop = false;
+            }
+
             isNotBlockDamage = true;
             rigidbody.velocity = Vector3.zero;
             Vector3 forceDirection = new Vector3(-1f, 0.4f, 0f);
@@ -169,7 +187,7 @@ public class BallController : MonoBehaviour
 
             if (isBlue) //未確認
             {
-                healthManager.Damage();
+                inGameManager.Damage();
                 isBlue = false;
                 arrowPlane.SetActive(false);
                 return;
@@ -188,6 +206,11 @@ public class BallController : MonoBehaviour
         }
         else if (other.gameObject.CompareTag("LeftLeftNote"))
         {
+            if (GameManager.IsTutorial)
+            {
+                GameManager.IsLoop = false;
+            }
+
             isNotBlockDamage = true;
             rigidbody.velocity = Vector3.zero;
             Vector3 forceDirection = new Vector3(1f, 0.4f, 0f);
@@ -196,7 +219,7 @@ public class BallController : MonoBehaviour
 
             if (isBlue) //未確認
             {
-                healthManager.Damage();
+                inGameManager.Damage();
                 isBlue = false;
                 arrowPlane.SetActive(false);
                 return;
@@ -215,7 +238,9 @@ public class BallController : MonoBehaviour
         }
         else if (other.gameObject.CompareTag("RightDamageBlock")
             &&
-            !isNotBlockDamage)
+            !isNotBlockDamage
+            &&
+            !GameManager.IsTutorial)
         {
             rigidbody.velocity = Vector3.zero;
             Vector3 forceDirection = new Vector3(-1f, 0.1f, 0f);
@@ -224,12 +249,14 @@ public class BallController : MonoBehaviour
 
             isBlue = false;
             arrowPlane.SetActive(false);
-            healthManager.Damage();
+            inGameManager.Damage();
             //StartCoroutine(PosReset("RightDamageBlock"));
         }
         else if (other.gameObject.CompareTag("LeftDamageBlock")
             &&
-            !isNotBlockDamage)
+            !isNotBlockDamage
+            &&
+            !GameManager.IsTutorial)
         {
             rigidbody.velocity = Vector3.zero;
             Vector3 forceDirection = new Vector3(1f, 0.1f, 0f);
@@ -238,16 +265,18 @@ public class BallController : MonoBehaviour
 
             isBlue = false;
             arrowPlane.SetActive(false);
-            healthManager.Damage();
+            inGameManager.Damage();
             //StartCoroutine(PosReset("LeftDamageBlock"));
         }
         else if (other.gameObject.GetComponent<MeshRenderer>().enabled != false
             &&
-            !isNotDamage)
+            !isNotDamage
+            &&
+            !GameManager.IsTutorial)
         {
             StartCoroutine(IsNotDamageController());
             //Debug.Log($"{other.gameObject}などに当たっている");
-            healthManager.Damage();
+            inGameManager.Damage();
             PosReset("Other"); //追加
             if (isBlue)
             {
@@ -290,7 +319,7 @@ public class BallController : MonoBehaviour
 
     IEnumerator OnBounceBallRightBlade()
     {
-        isInvalid = false;
+        GameManager.IsInvalid = true;
         GravityDeviceControler.isGravity = false;
         AntiGravityDeviceControler.isAntiGravity = false;
 
@@ -301,7 +330,7 @@ public class BallController : MonoBehaviour
     }
     IEnumerator OnBounceBallLeftBlade()
     {
-        isInvalid = false;
+        GameManager.IsInvalid = true;
         GravityDeviceControler.isGravity = false;
         AntiGravityDeviceControler.isAntiGravity = false;
 
@@ -325,7 +354,7 @@ public class BallController : MonoBehaviour
 
         if (transform.position.x == 0f)
         {
-            isInvalid = true;
+            GameManager.IsInvalid = false;
         }
     }
 

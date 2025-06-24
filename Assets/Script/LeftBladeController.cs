@@ -14,12 +14,14 @@ public class LeftBladeController : MonoBehaviour
     //[SerializeField] ParticleSystem particleSystem;
     Rigidbody rigidbody;
 
-    float slidePower = 400f;
+    float slidePower = 300f;
 
-    bool isInvalid = false;
+    public bool isInvalid = false;
     bool isRotation = false;
     bool isDamageReturn = false;
+    float tutorialStartTime = 0;
     //bool testBool = false;
+    public bool isSuccessInvalid = false;
     void Start()
     {
         rigidbody = GetComponent<Rigidbody>();
@@ -61,7 +63,7 @@ public class LeftBladeController : MonoBehaviour
             if (transform.position.y < 1.15f)//0.97838
             {
                 rigidbody.velocity = Vector3.zero;
-                rigidbody.AddForce((transform.up * -1) * (slidePower * 2.1f), ForceMode.Force);
+                rigidbody.AddForce((transform.up * -1) * (slidePower * 1.8f), ForceMode.Force); //2.1
             }
         }
         else if (Input.GetButtonUp("LeftBlade")
@@ -84,11 +86,6 @@ public class LeftBladeController : MonoBehaviour
             ||
             collision.gameObject.CompareTag("LeftNoteLong"))
         {
-            if (GameManager.IsTutorial)
-            {
-                GameManager.IsLoop = false;
-            }
-
             BallController.isNotDamage = true;
             Vector3 pos = transform.position;
             pos.x = Mathf.Clamp(pos.x, -0.20404f, -0.053f);
@@ -98,6 +95,11 @@ public class LeftBladeController : MonoBehaviour
             //particleSystem.Play();
             if (!collision.gameObject.GetComponent<NoteController>().IsCollision)
             {
+                if (GameManager.IsTutorial)
+                {
+                    tutorialStartTime = 0;
+                    tutorialStartTime = Time.time;
+                }
                 float judgTime = Time.time - JudgmentLineZ.standardTimes[2];
 
                 Debug.Log($"LeftBlade‚ÌJudgmentZ.standardTimes{JudgmentLineZ.standardTimes[2]}; judgTime{judgTime}");
@@ -107,7 +109,7 @@ public class LeftBladeController : MonoBehaviour
                 scoreManager.CalculateScore(noteType, judgment); //©JudgmentŒ^‚Ì•Ï”
             }
         }
-        else
+        else if (!GameManager.IsTutorial)
         {
             isDamageReturn = true;
             inGameManager.Damage();
@@ -131,7 +133,6 @@ public class LeftBladeController : MonoBehaviour
                 StartCoroutine(LongNoteManager(collision.gameObject));
                 noteType = scoreManager.JudgNoteType(collision.gameObject.tag);
                 scoreManager.CalculateScore(noteType, judgment);
-                Debug.Log($"Notetype{noteType}, Judgment{judgment}");
             }
         }
     }
@@ -141,6 +142,15 @@ public class LeftBladeController : MonoBehaviour
             ||
             collision.gameObject.CompareTag("LeftNoteLong"))
         {
+            if (GameManager.IsTutorial
+                &&
+                Time.time - tutorialStartTime >= 1.3f
+                &&
+                !isSuccessInvalid)
+            {
+                GameManager.IsLoop = false;
+            }
+
             BallController.isNotDamage = false;
             Vector3 pos = transform.position;
             pos.x = Mathf.Clamp(pos.x, -0.20404f , -0.05375149f);
@@ -165,11 +175,11 @@ public class LeftBladeController : MonoBehaviour
     {
         float timer = 0;
         float startTime = Time.time;
-        float duration = 3.5f;
+        float duration = 6f;
         float rotationT = 0;
         float rotationZ = 0;
         int roopCount = 0;
-        float keisu = 0.9f;
+        float keisu = 0.8f;
 
         while (timer <= duration
             &&
@@ -185,7 +195,6 @@ public class LeftBladeController : MonoBehaviour
     }
     IEnumerator RotationZControllerUp()
     {
-        Debug.Log("Up‚Ì‚Ù‚¤‚ªŒÄ‚Î‚ê‚Ä‚¢‚é");
         float timer = 0;
         float startTime = Time.time;
         float duration = 3.5f;
@@ -200,7 +209,6 @@ public class LeftBladeController : MonoBehaviour
         {
             rotationT = Mathf.Lerp(0, 1, (timer + (roopCount * keisu)) / duration);
             rotationZ = Mathf.Lerp(50, 0, rotationT);
-            //Debug.Log($"rotationZ;{rotationZ}");
             transform.rotation = Quaternion.Euler(0, 0, rotationZ); //timer‚ÌXV‚©‚çB
             timer = Time.time - startTime;
             roopCount++;

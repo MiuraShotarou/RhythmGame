@@ -2690,7 +2690,7 @@ MonoBehaviour:
   bgmSource: {fileID: 1147354346}
   seSource: {fileID: 1358307759}
   bgmClip:
-  - {fileID: 8300000, guid: dc16e26350444234eaf903236bab0f1d, type: 3}
+  - {fileID: 8300000, guid: b45ec498d12d90d4e872a40322aa6e10, type: 3}
   - {fileID: 8300000, guid: dc16e26350444234eaf903236bab0f1d, type: 3}
   seClip:
   - {fileID: 8300000, guid: be7c070b69cf0294ab6d3b97bb14a774, type: 3}
@@ -2699,7 +2699,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 570da63fb18131f48a73979895ce22e7, type: 3}
   - {fileID: 8300000, guid: 9939fdb10de60d649aba0986bf3929f1, type: 3}
   settingBGMClip: {fileID: 8300000, guid: ec490bd9f34f98941b4c8d5408fe074f, type: 3}
-  settingSEClip: {fileID: 8300000, guid: be7c070b69cf0294ab6d3b97bb14a774, type: 3}
+  settingSEClip: {fileID: 8300000, guid: 115f62e8ce3ff52489fcbabcc18e9b3c, type: 3}
   Audio_Mixer: {fileID: 24100000, guid: e46f66444c617b040a583ffddb7a2a50, type: 2}
   BGM_Slider: {fileID: 791910002}
   SE_Slider: {fileID: 1347226269}

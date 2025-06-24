@@ -14,12 +14,15 @@ public class RightBladeController : MonoBehaviour
     //[SerializeField] ParticleSystem particleSystem;
     Rigidbody rigidbody;
 
-    float slidePower = 400f; //700
+    float slidePower = 300f; //700
 
-    bool isInvalid = false;
+    public bool isInvalid = false;
     bool isRotation = false;
     bool isDamageReturn = false;
+
+    float tutorialStartTime = 0;
     //bool testBool = false; //èoåÇ
+    public bool isSuccessInvalid = false;
     void Start()
     {
         rigidbody = GetComponent<Rigidbody>();
@@ -61,7 +64,7 @@ public class RightBladeController : MonoBehaviour
             if (transform.position.y < 1.15f)//0.97838
             {
                 rigidbody.velocity = Vector3.zero;
-                rigidbody.AddForce((transform.up * -1) * (slidePower * 2.1f), ForceMode.Force);
+                rigidbody.AddForce((transform.up * -1) * (slidePower * 1.8f), ForceMode.Force); //2.1
             }
         }
         else if (Input.GetButtonUp("RightBlade")
@@ -84,11 +87,6 @@ public class RightBladeController : MonoBehaviour
             ||
             collision.gameObject.CompareTag("RightNoteLong"))
         {
-            if (GameManager.IsTutorial)
-            {
-                GameManager.IsLoop = false;
-            }
-
             BallController.isNotDamage = true;
             Vector3 pos = transform.position;
             pos.x = Mathf.Clamp(pos.x, 0.053f, 0.20404f);
@@ -98,6 +96,11 @@ public class RightBladeController : MonoBehaviour
             //particleSystem.Play();
             if (!collision.gameObject.GetComponent<NoteController>().IsCollision)
             {
+                if (GameManager.IsTutorial)
+                {
+                    tutorialStartTime = 0;
+                    tutorialStartTime = Time.time;
+                }
                 float judgTime = Time.time - JudgmentLineZ.standardTimes[1];
 
                 //Debug.Log($"RhigtBladeÇÃJudgmentZ.standardTimes{JudgmentLineZ.standardTimes[1]}; judgTime{judgTime}");
@@ -107,9 +110,8 @@ public class RightBladeController : MonoBehaviour
                 scoreManager.CalculateScore(noteType, judgment); //Å©Judgmentå^ÇÃïœêî
             }
         }
-        else
+        else if (!GameManager.IsTutorial)
         {
-            Debug.Log($"{collision.gameObject}Ç…ìñÇΩÇ¡ÇƒÇ¢ÇÈ");
             isDamageReturn = true;
             inGameManager.Damage();
             StartCoroutine(posReset());
@@ -121,7 +123,6 @@ public class RightBladeController : MonoBehaviour
             ||
             collision.gameObject.CompareTag("RightNoteLong"))
         {
-            Debug.Log($"BallController.isNotDamage{BallController.isNotDamage}");
             Vector3 pos = transform.position;
             pos.x = Mathf.Clamp(pos.x, 0.05375149f, 0.20404f);
             pos.y = Mathf.Clamp(pos.y, 0.86f, 0.85228f);
@@ -142,17 +143,22 @@ public class RightBladeController : MonoBehaviour
             ||
             collision.gameObject.CompareTag("RightNoteLong"))
         {
+            if (GameManager.IsTutorial
+                &&
+                Time.time - tutorialStartTime >= 1.3f
+                &&
+                !isSuccessInvalid)
+            {
+                GameManager.IsLoop = false;
+            }
+
             BallController.isNotDamage = false;
             Vector3 pos = transform.position;
             pos.x = Mathf.Clamp(pos.x, 0.05375149f, 0.20404f);
             pos.y = Mathf.Clamp(pos.y, 0.86f, 0.85228f);
             transform.position = pos;
             sparksEffect.SetActive(false);
-            //particleSystem.Stop();
-            //testBool = false;
-            //rigidbody.velocity = Vector3.zero;
-            //rigidbody.AddForce((transform.up * -1) * slidePower, ForceMode.Force); //Ç±Ç±Ç≈AddforceÇµÇƒÇ¢ÇÈÇÃÇ™ó«Ç≠Ç»Ç¢Ç©Ç‡ÅB
-            //StartCoroutine(PositionLog());
+
         }
     }
 
@@ -183,11 +189,11 @@ public class RightBladeController : MonoBehaviour
     {
         float timer = 0;
         float startTime = Time.time;
-        float duration = 4f;
+        float duration = 6f;   //
         float rotationT = 0;
         float rotationZ = 0;
         int roopCount = 0;
-        float keisu = 0.9f;
+        float keisu = 0.8f;   //
 
         while (timer <= duration
             &&

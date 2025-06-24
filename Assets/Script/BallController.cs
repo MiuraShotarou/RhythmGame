@@ -19,13 +19,12 @@ public class BallController : MonoBehaviour
     bool isBlue = false;
     public static bool isNotDamage = false;
     bool isNotBlockDamage = false;
-    bool isColorChange = false;
 
     AudioSource audioSource;
     // Start is called before the first frame update
     void Start()
     {
-        //audioSource = GetComponent<AudioSource>();
+        audioSource = GetComponent<AudioSource>();
         arrowPlane = transform.GetChild(0).gameObject;
         rigidbody = GetComponent<Rigidbody>();
     }
@@ -97,21 +96,22 @@ public class BallController : MonoBehaviour
         //audioSource.Play();
         if (other.gameObject.CompareTag("RightBlade"))
         {
-            //Debug.Log("接触・RightBlade");
             StartCoroutine(OnBounceBallRightBlade());
         }
         else if (other.gameObject.CompareTag("LeftBlade"))
         {
-            //Debug.Log("接触・LeftBlade");
             StartCoroutine(OnBounceBallLeftBlade());
         }
         else if (other.gameObject.CompareTag("MainNote")
             ||
             other.gameObject.CompareTag("MainNoteLong")) //連続でNoteを叩く場合、前NoteのJudgmentLineZが当たった時間 + 0.115fの間に次NoteがJudgmentLineZに当たってはいけない。
         {
-            if (GameManager.IsTutorial)
+            if (GameManager.IsTutorial
+                &&
+                GameManager.IsLoop)
             {
                 GameManager.IsLoop = false;
+                audioSource.Play();
             }
 
             if (!isBlue)
@@ -142,11 +142,6 @@ public class BallController : MonoBehaviour
         }
         else if (other.gameObject.CompareTag("BlueNote"))
         {
-            if (GameManager.IsTutorial)
-            {
-                GameManager.IsLoop = false;
-            }
-
             isNotDamage = true;
 
             if (!isBlue)
@@ -155,6 +150,13 @@ public class BallController : MonoBehaviour
                 crackTrs.gameObject.SetActive(true);
                 return;
                 //見た目を変える。
+            }
+            else if (GameManager.IsTutorial
+            &&
+            GameManager.IsLoop)
+            {
+                GameManager.IsLoop = false;
+                audioSource.Play();
             }
 
             miniY = 0.85f;
@@ -174,11 +176,6 @@ public class BallController : MonoBehaviour
         }
         else if (other.gameObject.CompareTag("RightRightNote"))
         {
-            if (GameManager.IsTutorial)
-            {
-                GameManager.IsLoop = false;
-            }
-
             isNotBlockDamage = true;
             rigidbody.velocity = Vector3.zero;
             Vector3 forceDirection = new Vector3(-1f, 0.4f, 0f);
@@ -191,6 +188,13 @@ public class BallController : MonoBehaviour
                 isBlue = false;
                 arrowPlane.SetActive(false);
                 return;
+            }
+            if (GameManager.IsTutorial
+                &&
+                GameManager.IsLoop)
+            {
+                GameManager.IsLoop = false;
+                audioSource.Play();
             }
 
             if (!other.gameObject.GetComponent<NoteController>().IsCollision) //スコアの計算式。
@@ -206,9 +210,12 @@ public class BallController : MonoBehaviour
         }
         else if (other.gameObject.CompareTag("LeftLeftNote"))
         {
-            if (GameManager.IsTutorial)
+            if (GameManager.IsTutorial
+                &&
+                GameManager.IsLoop)
             {
                 GameManager.IsLoop = false;
+                audioSource.Play();
             }
 
             isNotBlockDamage = true;
@@ -224,6 +231,13 @@ public class BallController : MonoBehaviour
                 arrowPlane.SetActive(false);
                 return;
             }
+            if (GameManager.IsTutorial
+                &&
+                GameManager.IsLoop)
+            {
+                GameManager.IsLoop = false;
+                audioSource.Play();
+            }
 
             if (!other.gameObject.GetComponent<NoteController>().IsCollision) //スコアの計算式。
             {
@@ -238,35 +252,35 @@ public class BallController : MonoBehaviour
         }
         else if (other.gameObject.CompareTag("RightDamageBlock")
             &&
-            !isNotBlockDamage
-            &&
-            !GameManager.IsTutorial)
+            !isNotBlockDamage)
         {
             rigidbody.velocity = Vector3.zero;
-            Vector3 forceDirection = new Vector3(-1f, 0.1f, 0f);
+            Vector3 forceDirection = new Vector3(-1f, 0.0001f, 0f);
             rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
-            StartCoroutine(ActiveGravityAndAntiGravity(1f)); //移植
+            StartCoroutine(ActiveGravityAndAntiGravity(0.25f)); //移植
 
             isBlue = false;
             arrowPlane.SetActive(false);
-            inGameManager.Damage();
-            //StartCoroutine(PosReset("RightDamageBlock"));
+            if (!GameManager.IsTutorial)
+            {
+                inGameManager.Damage();
+            }
         }
         else if (other.gameObject.CompareTag("LeftDamageBlock")
             &&
-            !isNotBlockDamage
-            &&
-            !GameManager.IsTutorial)
+            !isNotBlockDamage)
         {
             rigidbody.velocity = Vector3.zero;
-            Vector3 forceDirection = new Vector3(1f, 0.1f, 0f);
+            Vector3 forceDirection = new Vector3(1f, 0.0001f, 0f);
             rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
-            StartCoroutine(ActiveGravityAndAntiGravity(1f)); //いじり
+            StartCoroutine(ActiveGravityAndAntiGravity(0.25f)); //いじり
 
             isBlue = false;
             arrowPlane.SetActive(false);
-            inGameManager.Damage();
-            //StartCoroutine(PosReset("LeftDamageBlock"));
+            if (!GameManager.IsTutorial)
+            {
+                inGameManager.Damage();
+            }
         }
         else if (other.gameObject.GetComponent<MeshRenderer>().enabled != false
             &&

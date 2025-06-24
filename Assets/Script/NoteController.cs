@@ -17,12 +17,6 @@ public class NoteController : MonoBehaviour
 
     void CrashNote()
     {
-        AudioSource audioSource = GetComponent<AudioSource>();
-        if (GameManager.IsTutorial)
-        {
-            audioSource.Play();
-        }
-
         ParticleSystem particleSystem = GetComponentInChildren<ParticleSystem>();
 
         //Debug.Log(animator.name);

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -18,6 +19,8 @@ public class AudioManager : MonoBehaviour
     int memoraizeNoteNum = 0;
     [SerializeField] private float NotesSpeed;                     //ノーツの速度。
     [SerializeField] GameObject[] notesPrefab = new GameObject[9];                     //ノーツPrefab。
+    [SerializeField] GameObject rightNoteEffect;
+    [SerializeField] GameObject leftNoteEffect;
 
     [SerializeField] InGameManager inGameManager;
     [SerializeField] Rigidbody rightBladeRigidbody;
@@ -28,11 +31,15 @@ public class AudioManager : MonoBehaviour
     [SerializeField] GameObject rKeyUI;
     [SerializeField] GameObject fSpaceKeyUI;
     [SerializeField] GameObject fRKeyUI;
+    [SerializeField] GameObject countDownPrefab;
+    [SerializeField] GameObject startPrefab;
+    [SerializeField] GameObject canvas;
+    [SerializeField] GameObject rulePage;
     Coroutine activeSpaceKeyUI;
     Coroutine activeRKeyUI;
 
-    Func<IEnumerator> tutorialJudg;
-    Func<IEnumerator> returnOrStay;
+    Coroutine[] tutorialJudgs = new Coroutine[2];
+    Coroutine[] returnOrStay = new Coroutine[2];
     public void Play()
     {
         //if (CountDown <= 0)
@@ -44,15 +51,16 @@ public class AudioManager : MonoBehaviour
         leftBladeRigidbody.isKinematic = true;
         if (!GameManager.IsTutorial)
         {
-            PlayBGM(songName);
+            StartCoroutine(PlayBGM(songName));
         }
         else if (GameManager.IsTutorial)
         {
             StartCoroutine(PlayTutorial());
         }
     }
-    void PlayBGM(string songName)
+    IEnumerator PlayBGM(string songName)
     {
+        yield return StartCoroutine(CountDown());
         GameManager.BGMSource.clip = GameManager.BGMClip[GameManager.SelectedBGMIndex]; //のちにインデックスは引数で決定する仕様に。
         GameManager.BGMSource.Play();
 
@@ -69,8 +77,7 @@ public class AudioManager : MonoBehaviour
             NotesTime.Add(time);
             LaneNum.Add(inputJson.notes[i].block);
             NoteType.Add(inputJson.notes[i].type); //Listに登録しておいて、終点のLongNoteが見つかった場合にそちらをインスタンシエートする。
-
-            float z = NotesTime[i] * NotesSpeed + 0.8f;
+            float z = NotesTime[i] * NotesSpeed + 0.5f;
 
             if (inputJson.notes[i].type == 2
                 &&
@@ -83,29 +90,86 @@ public class AudioManager : MonoBehaviour
                 &&
                 memoraizeNoteNum != 0)
             {
-                Debug.Log($"i == {i} のbeforeZは{z}です。");
+                GameObject effectObject;
+
                 int longMultiplier = inputJson.notes[i].num - memoraizeNoteNum;
-                notePrefab.transform.localScale = new Vector3(notePrefab.transform.localScale.x, notePrefab.transform.localScale.y, notePrefab.transform.localScale.z * longMultiplier);
-                Debug.Log($"notePrefab.transform.localScale == {notePrefab.transform.localScale}");
-                z = z - (0.015688f * longMultiplier);
                 memoraizeNoteNum = 0;
-                NotesObj.Add(Instantiate(notePrefab, new Vector3(0, 0.8f, z), Quaternion.identity));
-                Debug.Log($"afterZ == {z}です。");
-                notePrefab.transform.localScale = new Vector3(notePrefab.transform.localScale.x, notePrefab.transform.localScale.y, notePrefab.transform.localScale.z / longMultiplier);
+                z = z - (0.015688f * longMultiplier);
+                GameObject longNote = Instantiate(notePrefab, new Vector3(0, 0.8f, z), Quaternion.identity);
+                longNote.transform.localScale = new Vector3(notePrefab.transform.localScale.x, notePrefab.transform.localScale.y, notePrefab.transform.localScale.z * longMultiplier);
+                if (inputJson.notes[i].block == 4)
+                {
+                    effectObject = Instantiate(rightNoteEffect);
+                    effectObject.transform.SetParent(longNote.transform);
+                    //effectObject.transform.localScale = new Vector3(10, 11.22878f, 0.2534863f);
+                    effectObject.transform.localPosition = new Vector3(0, 0, -0.5f);
+                }
+                else if (inputJson.notes[i].block == 6)
+                {
+                    effectObject = Instantiate(leftNoteEffect);
+                    effectObject.transform.SetParent(longNote.transform);
+                    //effectObject.transform.localScale = new Vector3(10, 11.22878f, 0.2534863f);
+                    effectObject.transform.localPosition = new Vector3(0, 0, -0.5f);
+                }
+                NotesObj.Add(longNote);
                 continue;
             }
             NotesObj.Add(Instantiate(notePrefab, new Vector3(notePrefab.transform.position.x, notePrefab.transform.position.y, z), notePrefab.transform.rotation));
-            Debug.Log($"i == {i} のblockは {inputJson.notes[i].block}, numは{inputJson.notes[i].num}, typは{inputJson.notes[i].type}");
+            //Debug.Log($"i == {i} のblockは {inputJson.notes[i].block}, numは{inputJson.notes[i].num}, typは{inputJson.notes[i].type}");
         }
+    }
+
+    IEnumerator CountDown()
+    {
+        if (GameManager.IsDebugMode)
+        {
+            yield break;
+        }
+        tutorialPanel.SetActive(true);
+        rulePage.transform.localScale = new Vector3(1, 0, 1);
+        rulePage.SetActive(true);
+        GameManager.SESource.clip = GameManager.SEClip[4];
+        GameManager.SESource.Play();
+        yield return StartCoroutine(ActiveTutorialPanel(rulePage, 0.5f));
+        StartCoroutine(ExpandTutorialPanel(rulePage, 0.5f));
+        yield return new WaitForSeconds(9f);
+        yield return StartCoroutine(AnExpandTutorialPanel(rulePage, 0.5f));
+        yield return StartCoroutine(AnActiveTutorialPanel(rulePage, 0.5f));
+        rulePage.SetActive(false);
+        GameManager.IsInvalid = false;
+        rightBladeRigidbody.isKinematic = false;
+        leftBladeRigidbody.isKinematic = false;
+        GameObject countDown = Instantiate(countDownPrefab, canvas.transform);
+        Destroy(countDown, 1.6f);
+        yield return new WaitForSeconds(2f);
+        GameObject startObject = Instantiate(startPrefab, canvas.transform);
+        Destroy(startObject, 1.2f);
+        yield return new WaitForSeconds(2.7f);
     }
 
     IEnumerator PlayTutorial()
     {
-        tutorialJudg = BGMChoice;
-        tutorialJudg += ReturnChoice;
-        returnOrStay = ChoiceYes;
-        returnOrStay += ChoiceNo;
+        if (GameManager.IsDebugMode)
+        {
+            tutorialPanel.SetActive(true);
+            GameObject tutorialPage99 = tutorialPanel.transform.GetChild(8).gameObject;
+            tutorialPage99.transform.localScale = new Vector3(1, 0, 1);
+            tutorialPage99.SetActive(true);
+            GameManager.SESource.clip = GameManager.SEClip[4];
+            GameManager.SESource.Play();
+            yield return StartCoroutine(ActiveTutorialPanel(tutorialPage99, 0.5f));
+            StartCoroutine(ExpandTutorialPanel(tutorialPage99, 0.5f));
+            spaceKeyUI.transform.localPosition = new Vector3(-895, -40, 0);
+            rKeyUI.transform.localPosition = new Vector3(-700, -40, 0);
+            yield return new WaitForSeconds(0.5f);
+            activeSpaceKeyUI = StartCoroutine(ActiveKeyUI(spaceKeyUI, 2f));
+            activeRKeyUI = StartCoroutine(ActiveKeyUI(rKeyUI, 2f));
 
+            tutorialJudgs[0] = StartCoroutine(BGMChoice());
+            tutorialJudgs[1] = StartCoroutine(ReturnChoice());
+            GameManager.IsTutorial = false;
+            yield break;
+        }
         GameObject tutorialPage1 = tutorialPanel.transform.GetChild(0).gameObject;
         tutorialPage1.transform.localScale = new Vector3(1, 0, 1);
         tutorialPanel.SetActive(true);
@@ -115,7 +179,6 @@ public class AudioManager : MonoBehaviour
         yield return StartCoroutine(ActiveTutorialPanel(tutorialPage1, 0.5f));
         StartCoroutine(ExpandTutorialPanel(tutorialPage1, 0.5f));
         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
-
         yield return StartCoroutine(AnExpandTutorialPanel(tutorialPage1, 0.5f));
         yield return StartCoroutine(AnActiveTutorialPanel(tutorialPage1, 0.5f));
         tutorialPage1.SetActive(false);
@@ -127,7 +190,6 @@ public class AudioManager : MonoBehaviour
         GameManager.SESource.Play();
         yield return StartCoroutine(ActiveTutorialPanel(tutorialPage2, 0.5f));
         StartCoroutine(ExpandTutorialPanel(tutorialPage2, 0.5f));
-
         yield return StartCoroutine(NoteGenerator(0, 1f, 1));
         GameManager.IsInvalid = true;
         yield return new WaitForSeconds(1.33f);
@@ -259,11 +321,14 @@ public class AudioManager : MonoBehaviour
         GameManager.SESource.Play();
         yield return StartCoroutine(ActiveTutorialPanel(tutorialPage9, 0.5f));
         StartCoroutine(ExpandTutorialPanel(tutorialPage9, 0.5f));
-        yield return new WaitForSeconds(2f);
+        spaceKeyUI.transform.localPosition = new Vector3(-895, -40, 0);
+        rKeyUI.transform.localPosition = new Vector3(-700, -40, 0);
+        yield return new WaitForSeconds(0.5f);
         activeSpaceKeyUI = StartCoroutine(ActiveKeyUI(spaceKeyUI, 2f));
         activeRKeyUI = StartCoroutine(ActiveKeyUI(rKeyUI, 2f));
 
-        StartCoroutine(tutorialJudg());
+        tutorialJudgs[0] = StartCoroutine(BGMChoice());
+        tutorialJudgs[1] = StartCoroutine(ReturnChoice());
         GameManager.IsTutorial = false;
     }
 
@@ -331,6 +396,8 @@ public class AudioManager : MonoBehaviour
                 a = Mathf.Lerp(0, 1, timer / duration);
                 yield return null;
             }
+            roopColor.a = 1;
+            gameObject.GetComponent<Image>().color = roopColor;
         }
     }
     IEnumerator ExpandTutorialPanel(GameObject gameObject, float duration)
@@ -349,6 +416,7 @@ public class AudioManager : MonoBehaviour
                 roopScaleY = Mathf.Lerp(0, 1, timer / duration);
                 yield return null;
             }
+             gameObject.transform.localScale = new Vector3(1, 1, 1);
         }
     }
     IEnumerator AnActiveTutorialPanel(GameObject gameObject, float duration)
@@ -368,6 +436,8 @@ public class AudioManager : MonoBehaviour
                 a = Mathf.Lerp(1, 0, timer / duration);
                 yield return null;
             }
+            roopColor.a = 0;
+            gameObject.GetComponent<Image>().color = roopColor;
         }
     }
     IEnumerator AnExpandTutorialPanel(GameObject gameObject, float duration)
@@ -456,13 +526,17 @@ public class AudioManager : MonoBehaviour
 
         GameManager.SESource.clip = GameManager.SEClip[4];                         //SE変える
         GameManager.SESource.Play();
-        inGameManager.BlackOut("Play");
-        StopCoroutine(tutorialJudg()); //BGMChoice() , ReturnChoice　が停止する。
+        StartCoroutine(inGameManager.BlackOut("Play"));
+        foreach (var coroutine in tutorialJudgs)
+        {
+            StopCoroutine(coroutine);
+        }
     }
 
     IEnumerator ReturnChoice()
     {
         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.R));
+
         GameObject tutorialPage10 = tutorialPanel.transform.GetChild(9).gameObject; //確認画面を開く
         tutorialPage10.transform.localScale = new Vector3(1, 0, 1);
         tutorialPage10.SetActive(true);
@@ -473,8 +547,12 @@ public class AudioManager : MonoBehaviour
         activeSpaceKeyUI =  StartCoroutine(ActiveKeyUI(fSpaceKeyUI, 2f));
         activeRKeyUI = StartCoroutine(ActiveKeyUI(fRKeyUI, 2f));
 
-        StartCoroutine(returnOrStay());
-        StopCoroutine(tutorialJudg()); //BGMChoice() , ReturnChoice　が停止する。
+        returnOrStay[0] = StartCoroutine(ChoiceYes());
+        returnOrStay[1] = StartCoroutine(ChoiceNo());
+        foreach (var coroutine in tutorialJudgs)
+        {
+            StopCoroutine(coroutine);
+        }
     }
 
     IEnumerator ChoiceYes()
@@ -485,8 +563,11 @@ public class AudioManager : MonoBehaviour
         GameManager.SESource.Play();
         StopCoroutine(activeSpaceKeyUI);
         StopCoroutine(activeRKeyUI);
-        inGameManager.BlackOut("ReturnTitle");
-        StopCoroutine(returnOrStay());
+        StartCoroutine(inGameManager.BlackOut("ReturnTitle"));
+        foreach (var coroutine in returnOrStay)
+        {
+            StopCoroutine(coroutine);
+        }
     }
     IEnumerator ChoiceNo()
     {
@@ -497,12 +578,17 @@ public class AudioManager : MonoBehaviour
         GameManager.SESource.Play();
         yield return StartCoroutine(AnActiveTutorialPanel(tutorialPage10, 0.1f));
         StartCoroutine(AnExpandTutorialPanel(tutorialPage10, 0.1f));
+        tutorialPage10.SetActive(false);
         StopCoroutine(activeSpaceKeyUI);
         StopCoroutine(activeRKeyUI);
         fSpaceKeyUI.SetActive(false);
         fRKeyUI.SetActive(false);
-        StopCoroutine(returnOrStay());
-        StartCoroutine(tutorialJudg());
+        tutorialJudgs[0] = StartCoroutine(BGMChoice());
+        tutorialJudgs[1] = StartCoroutine(ReturnChoice());
+        foreach (var coroutine in returnOrStay)
+        {
+            StopCoroutine(coroutine);
+        }
     }
 }
 

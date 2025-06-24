@@ -11,7 +11,7 @@ public class LeftBladeController : MonoBehaviour
     [SerializeField] ScoreManager scoreManager;
     [SerializeField] InGameManager inGameManager;
     [SerializeField] GameObject sparksEffect;
-    //[SerializeField] ParticleSystem particleSystem;
+
     Rigidbody rigidbody;
 
     float slidePower = 300f;
@@ -20,14 +20,13 @@ public class LeftBladeController : MonoBehaviour
     bool isRotation = false;
     bool isDamageReturn = false;
     float tutorialStartTime = 0;
-    //bool testBool = false;
+
     public bool isSuccessInvalid = false;
     void Start()
     {
         rigidbody = GetComponent<Rigidbody>();
     }
 
-    // Update is called once per frame
     void Update()
     {
         Vector3 pos = transform.position;
@@ -92,7 +91,7 @@ public class LeftBladeController : MonoBehaviour
             pos.y = Mathf.Clamp(pos.y, 0.86f, 0.853f);
             transform.position = pos;
             sparksEffect.SetActive(true);
-            //particleSystem.Play();
+
             if (!collision.gameObject.GetComponent<NoteController>().IsCollision)
             {
                 if (GameManager.IsTutorial)
@@ -157,11 +156,6 @@ public class LeftBladeController : MonoBehaviour
             pos.y = Mathf.Clamp(pos.y, 0.86f, 0.85228f);
             transform.position = pos;
             sparksEffect.SetActive(false);
-            //particleSystem.Stop();
-            //testBool = false;
-            //rigidbody.velocity = Vector3.zero;
-            //rigidbody.AddForce((transform.up * -1) * slidePower, ForceMode.Force); //Ç±Ç±Ç≈AddforceÇµÇƒÇ¢ÇÈÇÃÇ™ó«Ç≠Ç»Ç¢Ç©Ç‡ÅB
-            //StartCoroutine(PositionLog());
         }
     }
 
@@ -241,20 +235,5 @@ public class LeftBladeController : MonoBehaviour
             roopCount++;
             yield return null;
         }
-    }
-    IEnumerator PositionLog()
-    {
-        float counter = 0f;
-        float countMax = 50f;
-
-        Debug.Log($"ó£ÇÍÇÈ{rigidbody.velocity}");
-
-        while (counter < countMax)
-        {
-            //Debug.Log($"Position{transform.position}"); //
-            //counter++;
-        }
-
-        yield return null;
     }
 }

@@ -18,15 +18,9 @@ public class NoteController : MonoBehaviour
     void CrashNote()
     {
         ParticleSystem particleSystem = GetComponentInChildren<ParticleSystem>();
-
-        //Debug.Log(animator.name);
-        if (particleSystem != null
-            //&&
-            //animator != null
-            )
+        if (particleSystem != null)
         {
             particleSystem.Emit(1);                                                 //プレファブ毎にパーティクルシステムを変えれば良い
-
         }
         else if (particleSystem == null)
         {

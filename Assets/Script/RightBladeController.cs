@@ -11,7 +11,7 @@ public class RightBladeController : MonoBehaviour
     [SerializeField] ScoreManager scoreManager;
     [SerializeField] InGameManager inGameManager;
     [SerializeField] GameObject sparksEffect;
-    //[SerializeField] ParticleSystem particleSystem;
+
     Rigidbody rigidbody;
 
     float slidePower = 300f; //700
@@ -19,9 +19,8 @@ public class RightBladeController : MonoBehaviour
     public bool isInvalid = false;
     bool isRotation = false;
     bool isDamageReturn = false;
-
     float tutorialStartTime = 0;
-    //bool testBool = false; //出撃
+
     public bool isSuccessInvalid = false;
     void Start()
     {
@@ -93,7 +92,7 @@ public class RightBladeController : MonoBehaviour
             pos.y = Mathf.Clamp(pos.y, 0.86f, 0.853f);
             transform.position = pos;
             sparksEffect.SetActive(true);
-            //particleSystem.Play();
+
             if (!collision.gameObject.GetComponent<NoteController>().IsCollision)
             {
                 if (GameManager.IsTutorial)
@@ -158,7 +157,6 @@ public class RightBladeController : MonoBehaviour
             pos.y = Mathf.Clamp(pos.y, 0.86f, 0.85228f);
             transform.position = pos;
             sparksEffect.SetActive(false);
-
         }
     }
 
@@ -168,23 +166,6 @@ public class RightBladeController : MonoBehaviour
         yield return new WaitForSeconds(0.0166f);                                //ほぼワンフレームにつき加点
         noteLong.GetComponent<NoteController>().isCollisionStay = false;
     }
-
-    IEnumerator PositionLog()
-    {
-        float counter = 0f;
-        float countMax = 50f;
-
-        Debug.Log($"離れる{rigidbody.velocity}");
-
-        while (counter < countMax)
-        {
-            //Debug.Log($"Position{transform.position}"); //
-            //counter++;
-        }
-
-        yield return null;
-    }
-
     IEnumerator RotationZControllerDown()
     {
         float timer = 0;

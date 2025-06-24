@@ -13,7 +13,7 @@ public class BallController : MonoBehaviour
 
     GameObject arrowPlane;
     Rigidbody rigidbody;
-    float pushPower = 3f;
+    float pushPower = 5f;
     float miniY = 0.82f;
     bool ischecked = false;
     bool isBlue = false;

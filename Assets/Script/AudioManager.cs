@@ -26,11 +26,13 @@ public class AudioManager : MonoBehaviour
     [SerializeField] GameObject greatGenerator;
     [SerializeField] GameObject spaceKeyUI;
     [SerializeField] GameObject rKeyUI;
+    [SerializeField] GameObject fSpaceKeyUI;
+    [SerializeField] GameObject fRKeyUI;
     Coroutine activeSpaceKeyUI;
     Coroutine activeRKeyUI;
 
     Func<IEnumerator> tutorialJudg;
-    Func<string, IEnumerator> playOrReturn;
+    Func<IEnumerator> returnOrStay;
     public void Play()
     {
         //if (CountDown <= 0)
@@ -101,8 +103,8 @@ public class AudioManager : MonoBehaviour
     {
         tutorialJudg = BGMChoice;
         tutorialJudg += ReturnChoice;
-        playOrReturn = ChoiceYes;
-        playOrReturn += ChoiceNo;
+        returnOrStay = ChoiceYes;
+        returnOrStay += ChoiceNo;
 
         GameObject tutorialPage1 = tutorialPanel.transform.GetChild(0).gameObject;
         tutorialPage1.transform.localScale = new Vector3(1, 0, 1);
@@ -451,75 +453,55 @@ public class AudioManager : MonoBehaviour
     IEnumerator BGMChoice()
     {
         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
-        GameObject tutorialPage9 = tutorialPanel.transform.GetChild(8).gameObject; //曲プレイ用の確認画面を開く(Textの書き換え処理)
-        tutorialPage9.transform.localScale = new Vector3(1, 0, 1);
-        tutorialPage9.SetActive(true);
+
         GameManager.SESource.clip = GameManager.SEClip[4];                         //SE変える
         GameManager.SESource.Play();
-        yield return StartCoroutine(ActiveTutorialPanel(tutorialPage9, 0.5f));
-        StartCoroutine(ExpandTutorialPanel(tutorialPage9, 0.5f));
-
-        StartCoroutine(playOrReturn("Play"));
+        inGameManager.BlackOut("Play");
         StopCoroutine(tutorialJudg()); //BGMChoice() , ReturnChoice　が停止する。
     }
 
-    IEnumerator ReturnChoice()//
+    IEnumerator ReturnChoice()
     {
         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.R));
-        GameObject tutorialPage9 = tutorialPanel.transform.GetChild(8).gameObject; //確認画面を開く
-        tutorialPage9.transform.localScale = new Vector3(1, 0, 1);
-        tutorialPage9.SetActive(true);
+        GameObject tutorialPage10 = tutorialPanel.transform.GetChild(9).gameObject; //確認画面を開く
+        tutorialPage10.transform.localScale = new Vector3(1, 0, 1);
+        tutorialPage10.SetActive(true);
         GameManager.SESource.clip = GameManager.SEClip[4];                         //SE変える
         GameManager.SESource.Play();
-        yield return StartCoroutine(ActiveTutorialPanel(tutorialPage9, 0.5f));
-        StartCoroutine(ExpandTutorialPanel(tutorialPage9, 0.5f));
+        yield return StartCoroutine(ActiveTutorialPanel(tutorialPage10, 0.2f));
+        yield return StartCoroutine(ExpandTutorialPanel(tutorialPage10, 0.2f));
+        activeSpaceKeyUI =  StartCoroutine(ActiveKeyUI(fSpaceKeyUI, 2f));
+        activeRKeyUI = StartCoroutine(ActiveKeyUI(fRKeyUI, 2f));
 
-        StartCoroutine(playOrReturn("Return"));
+        StartCoroutine(returnOrStay());
         StopCoroutine(tutorialJudg()); //BGMChoice() , ReturnChoice　が停止する。
     }
 
-    IEnumerator ChoiceYes(string panelType)//
+    IEnumerator ChoiceYes()
     {
         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
 
-        if (panelType == "Play")
-        {
-            GameManager.SESource.clip = GameManager.SEClip[4];                         //SE変える
-            GameManager.SESource.Play();
-            inGameManager.BlackOut("Play");
-            StopCoroutine(playOrReturn("Play"));
-        }
-        else if (panelType == "Return")
-        {
-            GameManager.SESource.clip = GameManager.SEClip[4];                         //SE変える(もにゅ)
-            GameManager.SESource.Play();
-            inGameManager.BlackOut("ReturnTitle");
-            StopCoroutine(playOrReturn("Return"));
-        }
+        GameManager.SESource.clip = GameManager.SEClip[4];                         //SE変える(もにゅ)
+        GameManager.SESource.Play();
+        StopCoroutine(activeSpaceKeyUI);
+        StopCoroutine(activeRKeyUI);
+        inGameManager.BlackOut("ReturnTitle");
+        StopCoroutine(returnOrStay());
     }
-    IEnumerator ChoiceNo(string panelType)//
+    IEnumerator ChoiceNo()
     {
         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.R));
 
-        if (panelType == "Play")
-        {
-            GameObject tutorialPage9 = tutorialPanel.transform.GetChild(8).gameObject; //曲プレイ用の認画面を閉じる(Textの書き換え)
-            GameManager.SESource.clip = GameManager.SEClip[4];                         //SE変える
-            GameManager.SESource.Play();
-            yield return StartCoroutine(AnActiveTutorialPanel(tutorialPage9, 0.5f));
-            StartCoroutine(AnExpandTutorialPanel(tutorialPage9, 0.5f));
-            StopCoroutine(playOrReturn("Play"));
-        }
-        else if (panelType == "Return")
-        {
-            GameObject tutorialPage9 = tutorialPanel.transform.GetChild(8).gameObject; //確認画面を閉じる
-            GameManager.SESource.clip = GameManager.SEClip[4];                         //SE変える
-            GameManager.SESource.Play();
-            yield return StartCoroutine(AnActiveTutorialPanel(tutorialPage9, 0.5f));
-            StartCoroutine(AnExpandTutorialPanel(tutorialPage9, 0.5f));
-            StopCoroutine(playOrReturn("Retrun"));
-        }
-
+        GameObject tutorialPage10 = tutorialPanel.transform.GetChild(9).gameObject; //確認画面を閉じる
+        GameManager.SESource.clip = GameManager.SEClip[4];                         //SE変える
+        GameManager.SESource.Play();
+        yield return StartCoroutine(AnActiveTutorialPanel(tutorialPage10, 0.1f));
+        StartCoroutine(AnExpandTutorialPanel(tutorialPage10, 0.1f));
+        StopCoroutine(activeSpaceKeyUI);
+        StopCoroutine(activeRKeyUI);
+        fSpaceKeyUI.SetActive(false);
+        fRKeyUI.SetActive(false);
+        StopCoroutine(returnOrStay());
         StartCoroutine(tutorialJudg());
     }
 }

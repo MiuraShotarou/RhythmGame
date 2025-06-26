@@ -22,9 +22,21 @@ public class NoteController : MonoBehaviour
         {
             particleSystem.Emit(1);                                                 //プレファブ毎にパーティクルシステムを変えれば良い
         }
-        else if (particleSystem == null)
+
+        switch (gameObject.tag)
         {
-            Debug.Log("particleSystemが設定されていない。");
+            case "MainNote":
+            case "RightRightNote":
+            case "LeftLeftNote":
+                AudioManager.RedCount++;
+                break;
+            case "BlueNote":
+                AudioManager.BlueCount++;
+                break;
+            case "RightNoteLong":
+            case "LeftNoteLong":
+                AudioManager.YellowCount++;
+                break;
         }
     }
 }

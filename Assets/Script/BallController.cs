@@ -13,9 +13,8 @@ public class BallController : MonoBehaviour
 
     GameObject arrowPlane;
     Rigidbody rigidbody;
-    float pushPower = 5f;
+    float pushPower = 3f;
     float miniY = 0.82f;
-    bool ischecked = false;
     bool isBlue = false;
     public static bool isNotDamage = false;
     bool isNotBlockDamage = false;
@@ -54,8 +53,6 @@ public class BallController : MonoBehaviour
         else if (Input.GetButton("PushBall")
             && !GameManager.IsInvalid)
         {
-            //rigidbody.velocity = Vector3.zero;
-            //Debug.Log("HoldåƒÇŒÇÍÇΩ");
             rigidbody.AddForce(Vector2.down * 150, ForceMode.Force);
         }
         else if (Input.GetButtonDown("ChangeBlue")) //ééå±ìI
@@ -77,23 +74,12 @@ public class BallController : MonoBehaviour
             GravityDeviceControler.isGravity = true;
             isNotBlockDamage = false; //í«â¡
         }
-
-        if (ischecked)
-        {
-            Vector3 memorize = rigidbody.velocity;
-            if (rigidbody.velocity != memorize)
-            {
-                //Debug.Log(rigidbody.velocity);
-            }
-        }
     }
 
     NoteType noteType;
     Judgment judgment;
     private void OnTriggerEnter(Collider other)
     {
-        //Debug.Log("é¿ÇÕÉgÉäÉKÅ[ÇµÇƒÇ¢ÇÈ");
-        //audioSource.Play();
         if (other.gameObject.CompareTag("RightBlade"))
         {
             StartCoroutine(OnBounceBallRightBlade());
@@ -134,10 +120,9 @@ public class BallController : MonoBehaviour
                 float judgTime = Time.time - JudgmentLineZ.standardTimes[0];
 
                 //Debug.Log($"JudgmentZ.standardTimes{JudgmentLineZ.standardTimes[0]}; judgTime{judgTime}");
-                other.gameObject.GetComponent<NoteController>().IsCollision = true;
                 noteType = scoreManager.JudgNoteType(other.gameObject.tag);
                 judgment = scoreManager.JudgJudgment(judgTime);
-                scoreManager.CalculateScore(noteType, judgment);
+                scoreManager.CalculateScore(noteType, judgment, other.gameObject);
             }
         }
         else if (other.gameObject.CompareTag("BlueNote"))
@@ -168,15 +153,14 @@ public class BallController : MonoBehaviour
                 float judgTime = Time.time - JudgmentLineZ.standardTimes[5];
 
                 //Debug.Log($"JudgmentZ.standardTimes{JudgmentLineZ.standardTimes[0]}; judgTime{judgTime}");
-                other.gameObject.GetComponent<NoteController>().IsCollision = true;
                 noteType = scoreManager.JudgNoteType(other.gameObject.tag);
                 judgment = scoreManager.JudgJudgment(judgTime);
-                scoreManager.CalculateScore(noteType, judgment);
+                scoreManager.CalculateScore(noteType, judgment, other.gameObject);
             }
         }
         else if (other.gameObject.CompareTag("RightRightNote"))
         {
-            isNotBlockDamage = true;
+            isNotDamage = true;
             rigidbody.velocity = Vector3.zero;
             Vector3 forceDirection = new Vector3(-1f, 0.4f, 0f);
             rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
@@ -201,11 +185,9 @@ public class BallController : MonoBehaviour
             {
                 float judgTime = Time.time - JudgmentLineZ.standardTimes[3];
 
-                //Debug.Log($"JudgmentZ.standardTimes{JudgmentLineZ.standardTimes[3]}; judgTime{judgTime}");
-                other.gameObject.GetComponent<NoteController>().IsCollision = true;
                 noteType = scoreManager.JudgNoteType(other.gameObject.tag);
                 judgment = scoreManager.JudgJudgment(judgTime);
-                scoreManager.CalculateScore(noteType, judgment);
+                scoreManager.CalculateScore(noteType, judgment, other.gameObject);
             }
         }
         else if (other.gameObject.CompareTag("LeftLeftNote"))
@@ -218,7 +200,7 @@ public class BallController : MonoBehaviour
                 audioSource.Play();
             }
 
-            isNotBlockDamage = true;
+            isNotDamage = true;
             rigidbody.velocity = Vector3.zero;
             Vector3 forceDirection = new Vector3(1f, 0.4f, 0f);
             rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
@@ -244,41 +226,42 @@ public class BallController : MonoBehaviour
                 float judgTime = Time.time - JudgmentLineZ.standardTimes[4];
 
                 //Debug.Log($"JudgmentZ.standardTimes{JudgmentLineZ.standardTimes[4]}; judgTime{judgTime}");
-                other.gameObject.GetComponent<NoteController>().IsCollision = true;
                 noteType = scoreManager.JudgNoteType(other.gameObject.tag);
                 judgment = scoreManager.JudgJudgment(judgTime);
-                scoreManager.CalculateScore(noteType, judgment);
+                scoreManager.CalculateScore(noteType, judgment, other.gameObject);
             }
         }
-        else if (other.gameObject.CompareTag("RightDamageBlock")
-            &&
-            !isNotBlockDamage)
+        else if (other.gameObject.CompareTag("RightDamageBlock"))
         {
             rigidbody.velocity = Vector3.zero;
-            Vector3 forceDirection = new Vector3(-1f, 0.0001f, 0f);
+            Vector3 forceDirection = new Vector3(-1f, 0.1f, 0f);
             rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
-            StartCoroutine(ActiveGravityAndAntiGravity(0.25f)); //à⁄êA
+            StartCoroutine(ActiveGravityAndAntiGravity(0.2f)); //à⁄êA
 
             isBlue = false;
             arrowPlane.SetActive(false);
-            if (!GameManager.IsTutorial)
+            if (!GameManager.IsTutorial
+                &&
+                !isNotDamage)
             {
+                StartCoroutine(IsNotDamageController());
                 inGameManager.Damage();
             }
         }
-        else if (other.gameObject.CompareTag("LeftDamageBlock")
-            &&
-            !isNotBlockDamage)
+        else if (other.gameObject.CompareTag("LeftDamageBlock"))
         {
             rigidbody.velocity = Vector3.zero;
-            Vector3 forceDirection = new Vector3(1f, 0.0001f, 0f);
+            Vector3 forceDirection = new Vector3(1f, 0.1f, 0f);
             rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
-            StartCoroutine(ActiveGravityAndAntiGravity(0.25f)); //Ç¢Ç∂ÇË
+            StartCoroutine(ActiveGravityAndAntiGravity(0.2f)); //Ç¢Ç∂ÇË
 
             isBlue = false;
             arrowPlane.SetActive(false);
-            if (!GameManager.IsTutorial)
+            if (!GameManager.IsTutorial
+                &&
+                !isNotDamage)
             {
+                StartCoroutine(IsNotDamageController());
                 inGameManager.Damage();
             }
         }
@@ -299,35 +282,21 @@ public class BallController : MonoBehaviour
             }
         }
     }
-    private void OnTriggerStay(Collider other)
-    {
-        if (other.gameObject.CompareTag("MainNoteLong")
-           &&
-           !other.gameObject.GetComponent<NoteController>().isCollisionStay)
-        {
-            //Vector3 pos = transform.position;
-            //pos.y = Mathf.Clamp(pos.y, 0.85f, 100f);
-            //transform.position = pos;
-            StartCoroutine(LongNoteManager(other.gameObject));
-            noteType = scoreManager.JudgNoteType(other.gameObject.tag);
-            scoreManager.CalculateScore(noteType, judgment);
-            //Debug.Log($"Notetype{noteType}, Judgment{judgment}");
-        }
-    }
     private void OnTriggerExit(Collider other)
     {
         if (other.gameObject.CompareTag("MainNote")
             ||
             other.gameObject.CompareTag("MainNoteLong")
             ||
-            other.gameObject.CompareTag("BlueNote"))
+            other.gameObject.CompareTag("BlueNote")
+            ||
+            other.gameObject.CompareTag("RightRightNote")
+            ||
+            other.gameObject.CompareTag("LeftLeftNote"))
         {
             miniY = 0.82f;
 
             isNotDamage = false;
-            //Vector3 pos = transform.position;
-            //pos.y = Mathf.Clamp(pos.y, 0.85f, 100f);
-            //transform.position = pos;
         }
     }
 

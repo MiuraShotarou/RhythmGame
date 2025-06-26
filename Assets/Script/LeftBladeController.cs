@@ -102,10 +102,12 @@ public class LeftBladeController : MonoBehaviour
                 float judgTime = Time.time - JudgmentLineZ.standardTimes[2];
 
                 Debug.Log($"LeftBladeÇÃJudgmentZ.standardTimes{JudgmentLineZ.standardTimes[2]}; judgTime{judgTime}");
-                collision.gameObject.GetComponent<NoteController>().IsCollision = true;
                 noteType = scoreManager.JudgNoteType(collision.gameObject.tag);
                 judgment = scoreManager.JudgJudgment(judgTime);
-                scoreManager.CalculateScore(noteType, judgment); //Å©Judgmentå^ÇÃïœêî
+                if (judgment != Judgment.Miss)
+                {
+                    scoreManager.CalculateScore(noteType, judgment, collision.gameObject); //Å©Judgmentå^ÇÃïœêî
+                }
             }
         }
         else if (!GameManager.IsTutorial)
@@ -131,7 +133,7 @@ public class LeftBladeController : MonoBehaviour
             {
                 StartCoroutine(LongNoteManager(collision.gameObject));
                 noteType = scoreManager.JudgNoteType(collision.gameObject.tag);
-                scoreManager.CalculateScore(noteType, judgment);
+                scoreManager.CalculateScore(noteType, judgment, collision.gameObject);
             }
         }
     }

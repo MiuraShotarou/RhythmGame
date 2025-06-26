@@ -32,23 +32,23 @@ public enum Judgment
 }
 public enum Rank
 {
-    SSS,
+    SSS, 
     S,
     A,
     B,
-    C
+    C,
+    None
 }
 
 public class ScoreManager : MonoBehaviour
 {
+    static int[] _judgmentsCounter = new int[4];
+
+    public static int[] JudgmentsCounter { get { return _judgmentsCounter; } set { _judgmentsCounter = value; } }
+    
     public float totalScore;
     float[] noteScore = { 10f, 1f, 12f }; //長押し系ノーツは10/10 → 1score / 1second
-    float[] judgmentMultiplier = { 0f, 0.8f, 1.0f, 1.2f };
-    float[] rankMultiplier = { 0.8f, 1.0f, 1.3f, 1.8f, 2.0f };
-
-    int[] judgmentCounter = new int[4];
-
-    //public Dictionary<int, NoteType> foreachBGMNoteCointer;
+    float[] judgmentMultiplier = { 0f, 1.0f, 1.2f, 1.4f };
 
     public NoteType JudgNoteType(string tag)
     {
@@ -89,7 +89,7 @@ public class ScoreManager : MonoBehaviour
             return Judgment.Miss;
         }
     }
-    public void CalculateScore(NoteType noteType, Judgment judgment)
+    public void CalculateScore(NoteType noteType, Judgment judgment, GameObject other)
     {
         int noteIndex = -1;
         int judgmentIndex = -1;
@@ -126,13 +126,17 @@ public class ScoreManager : MonoBehaviour
             && judgmentIndex != -1)
         {
             totalScore += noteScore[noteIndex] * judgmentMultiplier[judgmentIndex]; //スコアの加算
-            judgmentCounter[judgmentIndex]++; 　　　　　　　　　　　　　　　　　　　//ノーツ評価をカテゴリ別にカウントする。
-
+            if (!other.GetComponent<NoteController>().IsCollision)
+            {
+                JudgmentsCounter[judgmentIndex]++;                  //ノーツ評価をカテゴリ別にカウントする。
+                other.GetComponent<NoteController>().IsCollision = true;
+            }
             //ノーツ評価を画面上に表示する。
         }
         else
         {
             Debug.Log("Indexが上手く割り当てられていない");
         }
+
     }
 }

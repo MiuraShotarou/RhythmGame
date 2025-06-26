@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -11,10 +12,10 @@ public class AudioManager : MonoBehaviour
 {
     int noteNum;       //総ノーツ数
 
-    List<int> LaneNum = new List<int>();                //何番のレーンにノーツが落ちてくるか。
+    List<int> countNoteType = new List<int>();                //何番のレーンにノーツが落ちてくるか。
     List<int> NoteType = new List<int>();               //ノーツの種類
     List<float> NotesTime = new List<float>();          //ノーツが判定線と重なる時間。
-    List<GameObject> NotesObj = new List<GameObject>(); //ノーツオブジェクトを格納する変数。
+    List<GameObject> NotesObj = new List<GameObject>(); //総ノーツ数
 
     int memoraizeNoteNum = 0;
     [SerializeField] private float NotesSpeed;                     //ノーツの速度。
@@ -23,27 +24,43 @@ public class AudioManager : MonoBehaviour
     [SerializeField] GameObject leftNoteEffect;
 
     [SerializeField] InGameManager inGameManager;
+    [SerializeField] ScoreManager scoreManager;
     [SerializeField] Rigidbody rightBladeRigidbody;
     [SerializeField] Rigidbody leftBladeRigidbody;
     [SerializeField] GameObject tutorialPanel;
     [SerializeField] GameObject greatGenerator;
     [SerializeField] GameObject spaceKeyUI;
+    [SerializeField] GameObject spaceKeyUI2;
     [SerializeField] GameObject rKeyUI;
     [SerializeField] GameObject fSpaceKeyUI;
     [SerializeField] GameObject fRKeyUI;
     [SerializeField] GameObject countDownPrefab;
     [SerializeField] GameObject startPrefab;
+    [SerializeField] GameObject completedPrefab;
     [SerializeField] GameObject canvas;
+    [SerializeField] GameObject resultPanel;
     [SerializeField] GameObject rulePage;
+
+    [SerializeField] GameObject[] resultTextObjects = new GameObject[10];
+    [SerializeField] GameObject[] rankImageObjects = new GameObject[5];
+
+    AudioClip resultClip;
     Coroutine activeSpaceKeyUI;
     Coroutine activeRKeyUI;
 
     Coroutine[] tutorialJudgs = new Coroutine[2];
     Coroutine[] returnOrStay = new Coroutine[2];
+
+    static int _redCount;
+    static int _buleCount;
+    static int _yellowCount;
+
+    public static int RedCount { get { return _redCount; } set { _redCount = value; } }
+    public static int BlueCount { get { return _buleCount; } set { _buleCount = value; } }
+    public static int YellowCount { get { return _yellowCount; } set { _yellowCount = value; } }
+
     public void Play()
     {
-        //if (CountDown <= 0)
-        //noteNum = 0;
         Debug.Log(GameManager.SelectedBGMIndex);
         string songName = GameManager.BGMClip[GameManager.SelectedBGMIndex].name;
         GameManager.IsInvalid = true;
@@ -52,6 +69,7 @@ public class AudioManager : MonoBehaviour
         if (!GameManager.IsTutorial)
         {
             StartCoroutine(PlayBGM(songName));
+            StartCoroutine(ShowResult());
         }
         else if (GameManager.IsTutorial)
         {
@@ -75,7 +93,7 @@ public class AudioManager : MonoBehaviour
             float beatSec = kankaku * (float)inputJson.notes[i].LPB;
             float time = (beatSec * inputJson.notes[i].num / (float)inputJson.notes[i].LPB) + inputJson.offset + 0.01f;
             NotesTime.Add(time);
-            LaneNum.Add(inputJson.notes[i].block);
+            countNoteType.Add(inputJson.notes[i].block);
             NoteType.Add(inputJson.notes[i].type); //Listに登録しておいて、終点のLongNoteが見つかった場合にそちらをインスタンシエートする。
             float z = NotesTime[i] * NotesSpeed + 0.5f;
 
@@ -101,26 +119,33 @@ public class AudioManager : MonoBehaviour
                 {
                     effectObject = Instantiate(rightNoteEffect);
                     effectObject.transform.SetParent(longNote.transform);
-                    //effectObject.transform.localScale = new Vector3(10, 11.22878f, 0.2534863f);
                     effectObject.transform.localPosition = new Vector3(0, 0, -0.5f);
                 }
                 else if (inputJson.notes[i].block == 6)
                 {
                     effectObject = Instantiate(leftNoteEffect);
                     effectObject.transform.SetParent(longNote.transform);
-                    //effectObject.transform.localScale = new Vector3(10, 11.22878f, 0.2534863f);
                     effectObject.transform.localPosition = new Vector3(0, 0, -0.5f);
                 }
                 NotesObj.Add(longNote);
                 continue;
             }
             NotesObj.Add(Instantiate(notePrefab, new Vector3(notePrefab.transform.position.x, notePrefab.transform.position.y, z), notePrefab.transform.rotation));
-            //Debug.Log($"i == {i} のblockは {inputJson.notes[i].block}, numは{inputJson.notes[i].num}, typは{inputJson.notes[i].type}");
+        }
+
+        if (GameManager.SelectedBGMIndex == 0)
+        {
+            yield return new WaitForSeconds(32f);
+            yield break;
         }
     }
 
     IEnumerator CountDown()
     {
+        scoreManager.totalScore = 0;
+        GameManager.IsInvalid = false;
+        rightBladeRigidbody.isKinematic = false;
+        leftBladeRigidbody.isKinematic = false;
         if (GameManager.IsDebugMode)
         {
             yield break;
@@ -136,15 +161,188 @@ public class AudioManager : MonoBehaviour
         yield return StartCoroutine(AnExpandTutorialPanel(rulePage, 0.5f));
         yield return StartCoroutine(AnActiveTutorialPanel(rulePage, 0.5f));
         rulePage.SetActive(false);
-        GameManager.IsInvalid = false;
-        rightBladeRigidbody.isKinematic = false;
-        leftBladeRigidbody.isKinematic = false;
         GameObject countDown = Instantiate(countDownPrefab, canvas.transform);
         Destroy(countDown, 1.6f);
         yield return new WaitForSeconds(2f);
         GameObject startObject = Instantiate(startPrefab, canvas.transform);
         Destroy(startObject, 1.2f);
         yield return new WaitForSeconds(2.7f);
+    }
+
+    IEnumerator ShowResult()
+    {
+        foreach (GameObject gameObject in rankImageObjects)
+        {
+            gameObject.GetComponent<Image>().color = new Color(gameObject.GetComponent<Image>().color.r, gameObject.GetComponent<Image>().color.g, gameObject.GetComponent<Image>().color.b, 0);
+        }
+        foreach (GameObject gameObject in resultTextObjects)
+        {
+            gameObject.GetComponent<TextMeshProUGUI>().color = new Color(1, 1, 1, 0);
+        }
+
+        yield return new WaitUntil(() => GameManager.BGMSource.isPlaying == true);
+        yield return new WaitForSeconds(2f);
+        yield return new WaitUntil(() => GameManager.BGMSource.isPlaying == false); //待機
+        yield return new WaitForSeconds(2f);
+        yield return new WaitUntil(() => GameManager.BGMSource.isPlaying == false); //待機
+        yield return new WaitForSeconds(2f);
+        yield return new WaitUntil(() => GameManager.BGMSource.isPlaying == false); //待機
+
+        GameManager.IsInvalid = true;
+        rightBladeRigidbody.isKinematic = true;
+        leftBladeRigidbody.isKinematic = true;
+        int totalScore = Mathf.FloorToInt(scoreManager.totalScore);
+        float rankMultiplier = 0;
+        int allRedCount = 0;
+        int allBlueCount = 0;
+        int allYellowCount = 0;
+        int exellentCount = ScoreManager.JudgmentsCounter[3];
+        int veryGoodCount = ScoreManager.JudgmentsCounter[2];
+        int goodCount = ScoreManager.JudgmentsCounter[1];
+        int missCount = ScoreManager.JudgmentsCounter[0];
+        GameObject rankImageObject = null;
+        Rank rank = Rank.None;
+
+        float exellentPercent = (float)exellentCount / NotesObj.Count * 100;
+        Debug.Log(exellentPercent);
+        if (exellentPercent == 100)
+        {
+            rank = Rank.SSS;
+            rankImageObject = rankImageObjects[0];
+            rankMultiplier = 2f;
+        }
+        else if (exellentPercent >= 95)
+        {
+            rank = Rank.S;
+            rankImageObject = rankImageObjects[1];
+            rankMultiplier = 1.8f;
+        }
+        else if (exellentPercent >= 80)
+        {
+            rank = Rank.A;
+            rankImageObject = rankImageObjects[2];
+            rankMultiplier = 1.5f;
+        }
+        else if (exellentPercent >= 50)
+        {
+            rank = Rank.B;
+            rankImageObject = rankImageObjects[3];
+            rankMultiplier = 1.3f;
+        }
+        else
+        {
+            rank = Rank.C;
+            rankImageObject = rankImageObjects[4];
+            rankMultiplier = 1.0f;
+        }
+        foreach (int noteType in countNoteType) //母数でしかない
+        {
+            switch (noteType)
+            {
+                case 0:
+                case 7:
+                case 8:
+                    allRedCount++;
+                    break;
+                case 1:
+                    allBlueCount++;
+                    break;
+                case 4:
+                case 6:
+                    allYellowCount++;
+                    break;
+            }
+        }
+        int finalScore = Mathf.FloorToInt(totalScore * rankMultiplier);
+        int successCount = exellentCount + veryGoodCount + goodCount + missCount;
+        missCount += NotesObj.Count - successCount;
+
+        string[] resultTexts = {$"× {rankMultiplier.ToString("F1")}",
+                               $"<color=#ff0000>MainNote</color> {RedCount}",         //総エクセレントノーツ数 // 総Mainノーツ数 + 倍率
+                               $"<color=#0000ff>ImpactNote</color> {BlueCount}",
+                               $"<color=#ffff00>BladeNote</color> {YellowCount}",
+                               $"<#FFFFFF>Excellent</color> {exellentCount}",
+                               $"<#C8C8C8>VeryGood</color> {veryGoodCount}",
+                               $"<#969696>Good</color> {goodCount}",
+                               $"<#323232>Miss</color> {missCount}",
+                               $"{totalScore}",
+                               $"{finalScore}" };
+
+        GameObject completedObject = Instantiate(completedPrefab, canvas.transform);　//コンプリートの文字
+        Destroy(completedObject, 1.5f);
+        yield return new WaitForSeconds(5f);
+        resultPanel.transform.localScale = new Vector3(1, 0, 1);
+        resultPanel.SetActive(true);
+        GameManager.SESource.clip = GameManager.SEClip[4];
+        GameManager.SESource.Play();
+        StartCoroutine(inGameManager.NonActivePointLight());
+        StartCoroutine(inGameManager.NonActiveSpotLight());
+        StartCoroutine(inGameManager.NonActiveSpotLight2());
+        yield return StartCoroutine(ActiveTutorialPanel(resultPanel, 0.5f));
+        yield return StartCoroutine(ExpandTutorialPanel(resultPanel, 0.5f));
+        StartCoroutine(ActiveGameObjectUI(rankImageObject, 0.5f, "Image"));
+        TextMeshProUGUI[] tmpChildren = resultPanel.GetComponentsInChildren<TextMeshProUGUI>(true);
+        foreach (TextMeshProUGUI child in tmpChildren)
+        {
+            GameObject go = child.gameObject;
+            StartCoroutine(ActiveGameObjectUI(go, 0.5f, "TMP"));
+        }
+        for (int i = 0; i < resultTextObjects.Length; i++)
+        {
+            resultTextObjects[i].GetComponent<TextMeshProUGUI>().text = resultTexts[i];
+        }
+        StartCoroutine(ActiveKeyUI(spaceKeyUI2, 1f));
+
+        yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
+        GameManager.BGMScore[GameManager.SelectedBGMIndex] = finalScore;
+        GameManager.AllRedCount[GameManager.SelectedBGMIndex] = allRedCount;
+        GameManager.AllBlueCount[GameManager.SelectedBGMIndex] = allBlueCount;
+        GameManager.AllYellowCount[GameManager.SelectedBGMIndex] = allYellowCount;        
+        GameManager.RedCount[GameManager.SelectedBGMIndex] = RedCount;
+        GameManager.BlueCount[GameManager.SelectedBGMIndex] = BlueCount;
+        GameManager.YellowCount[GameManager.SelectedBGMIndex] = YellowCount;
+
+        StartCoroutine(inGameManager.BlackOut("ReturnTitle"));
+        GameManager.SESource.clip = GameManager.SEClip[4];
+        GameManager.SESource.Play();
+        yield return StartCoroutine(AnExpandTutorialPanel(resultPanel, 0.5f));
+        yield return StartCoroutine(AnActiveTutorialPanel(resultPanel, 0.5f));
+        resultPanel.SetActive(false);
+    }
+
+    IEnumerator ActiveGameObjectUI(GameObject gameObjectUI, float duration, string T)
+    {
+        gameObjectUI.SetActive(true);
+        float a = 0;
+        float timer = 0;
+        float startTime = Time.time; //ゲーム開始からの時間　仮：1min →　新time - imin
+        Color roopColor = Color.white;
+
+        if (T == "TMP")
+        {
+            roopColor = gameObjectUI.GetComponent<TextMeshProUGUI>().color;
+        }
+        else if (T == "Image")
+        {
+            roopColor = gameObjectUI.GetComponent<Image>().color;
+        }
+        while (timer <= duration) //時間で振動の切り上げ
+        {
+            roopColor.a = a;
+
+            if (T == "TMP")
+            {
+                gameObjectUI.GetComponent<TextMeshProUGUI>().color = roopColor;
+            }
+            else if (T == "Image")
+            {
+                gameObjectUI.GetComponent<Image>().color = roopColor;
+            }
+
+            timer = Time.time - startTime;
+            a = Mathf.Lerp(0, 1, timer / duration);
+            yield return null;
+        }
     }
 
     IEnumerator PlayTutorial()
@@ -332,53 +530,6 @@ public class AudioManager : MonoBehaviour
         GameManager.IsTutorial = false;
     }
 
-    //    yield return new WaitForSeconds(10f);
-
-    //    GameManager.BGMSource.clip = GameManager.BGMClip[GameManager.SelectedBGMIndex]; //のちにインデックスは引数で決定する仕様に。
-    //    GameManager.BGMSource.Play();
-
-    //    string inputString = Resources.Load<TextAsset>(songName).ToString(); //SongName ← string "テスト";
-    //    Data inputJson = JsonUtility.FromJson<Data>(inputString);            //JsonUtility.FromJson<Data>(inputString);
-
-    //    noteNum = inputJson.notes.Length;
-    //    for (int i = 0; i < inputJson.notes.Length; i++)
-    //    {
-    //        GameObject notePrefab = notesPrefab[inputJson.notes[i].block];
-    //        float kankaku = 60 / (inputJson.BPM * (float)inputJson.notes[i].LPB); //間隔　とは　一分間で何回ビートがあるのか、と 1拍につきいくつのラインがるのか　で掛けた値を60で割ったもの。
-    //        float beatSec = kankaku * (float)inputJson.notes[i].LPB;
-    //        float time = (beatSec * inputJson.notes[i].num / (float)inputJson.notes[i].LPB) + inputJson.offset + 0.01f;
-    //        NotesTime.Add(time);
-    //        LaneNum.Add(inputJson.notes[i].block);
-    //        NoteType.Add(inputJson.notes[i].type); //Listに登録しておいて、終点のLongNoteが見つかった場合にそちらをインスタンシエートする。
-
-    //        float z = NotesTime[i] * NotesSpeed + 0.8f;
-
-    //        if (inputJson.notes[i].type == 2
-    //            &&
-    //            memoraizeNoteNum == 0)
-    //        {
-    //            memoraizeNoteNum = inputJson.notes[i].num;
-    //            continue;
-    //        }
-    //        else if (inputJson.notes[i].type == 2
-    //            &&
-    //            memoraizeNoteNum != 0)
-    //        {
-    //            Debug.Log($"i == {i} のbeforeZは{z}です。");
-    //            int longMultiplier = inputJson.notes[i].num - memoraizeNoteNum;
-    //            notePrefab.transform.localScale = new Vector3(notePrefab.transform.localScale.x, notePrefab.transform.localScale.y, notePrefab.transform.localScale.z * longMultiplier);
-    //            Debug.Log($"notePrefab.transform.localScale == {notePrefab.transform.localScale}");
-    //            z = z - (0.015688f * longMultiplier);
-    //            memoraizeNoteNum = 0;
-    //            NotesObj.Add(Instantiate(notePrefab, new Vector3(0, 0.8f, z), Quaternion.identity));
-    //            Debug.Log($"afterZ == {z}です。");
-    //            notePrefab.transform.localScale = new Vector3(notePrefab.transform.localScale.x, notePrefab.transform.localScale.y, notePrefab.transform.localScale.z / longMultiplier);
-    //            continue;
-    //        }
-    //        NotesObj.Add(Instantiate(notePrefab, new Vector3(notePrefab.transform.position.x, notePrefab.transform.position.y, z), notePrefab.transform.rotation));
-    //        Debug.Log($"i == {i} のblockは {inputJson.notes[i].block}, numは{inputJson.notes[i].num}, typは{inputJson.notes[i].type}");
-    //    }
-    //}
     IEnumerator ActiveTutorialPanel(GameObject gameObject, float duration)
     {
         {
@@ -403,7 +554,6 @@ public class AudioManager : MonoBehaviour
     IEnumerator ExpandTutorialPanel(GameObject gameObject, float duration)
     {
         {
-            float scaleY = 0;
             float timer = 0;
             float startTime = Time.time; //ゲーム開始からの時間　仮：1min →　新time - imin
             float roopScaleY = 0;
@@ -443,7 +593,6 @@ public class AudioManager : MonoBehaviour
     IEnumerator AnExpandTutorialPanel(GameObject gameObject, float duration)
     {
         {
-            float scaleY = 1;
             float timer = 0;
             float startTime = Time.time; //ゲーム開始からの時間　仮：1min →　新time - imin
             float roopScaleY = 0;
@@ -576,8 +725,8 @@ public class AudioManager : MonoBehaviour
         GameObject tutorialPage10 = tutorialPanel.transform.GetChild(9).gameObject; //確認画面を閉じる
         GameManager.SESource.clip = GameManager.SEClip[4];                         //SE変える
         GameManager.SESource.Play();
-        yield return StartCoroutine(AnActiveTutorialPanel(tutorialPage10, 0.1f));
-        StartCoroutine(AnExpandTutorialPanel(tutorialPage10, 0.1f));
+        yield return StartCoroutine(AnExpandTutorialPanel(tutorialPage10, 0.1f));
+        StartCoroutine(AnActiveTutorialPanel(tutorialPage10, 0.1f));
         tutorialPage10.SetActive(false);
         StopCoroutine(activeSpaceKeyUI);
         StopCoroutine(activeRKeyUI);

@@ -6,6 +6,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class AudioManager : MonoBehaviour
@@ -37,14 +38,14 @@ public class AudioManager : MonoBehaviour
     [SerializeField] GameObject countDownPrefab;
     [SerializeField] GameObject startPrefab;
     [SerializeField] GameObject completedPrefab;
-    [SerializeField] GameObject canvas;
     [SerializeField] GameObject resultPanel;
-    [SerializeField] GameObject rulePage;
+    [SerializeField] GameObject[] rulePages;
+    [SerializeField] GameObject scoreTextObject;
+    [SerializeField] GameObject canvas;
 
     [SerializeField] GameObject[] resultTextObjects = new GameObject[10];
     [SerializeField] GameObject[] rankImageObjects = new GameObject[5];
 
-    AudioClip resultClip;
     Coroutine activeSpaceKeyUI;
     Coroutine activeRKeyUI;
 
@@ -61,7 +62,7 @@ public class AudioManager : MonoBehaviour
 
     public void Play()
     {
-        Debug.Log(GameManager.SelectedBGMIndex);
+        Debug.Log($"{RedCount}{BlueCount}{YellowCount}");
         string songName = GameManager.BGMClip[GameManager.SelectedBGMIndex].name;
         GameManager.IsInvalid = true;
         rightBladeRigidbody.isKinematic = true;
@@ -113,7 +114,7 @@ public class AudioManager : MonoBehaviour
                 int longMultiplier = inputJson.notes[i].num - memoraizeNoteNum;
                 memoraizeNoteNum = 0;
                 z = z - (0.015688f * longMultiplier);
-                GameObject longNote = Instantiate(notePrefab, new Vector3(0, 0.8f, z), Quaternion.identity);
+                GameObject longNote = Instantiate(notePrefab, new Vector3(notePrefab.transform.position.x, notePrefab.transform.position.y, z), Quaternion.identity);
                 longNote.transform.localScale = new Vector3(notePrefab.transform.localScale.x, notePrefab.transform.localScale.y, notePrefab.transform.localScale.z * longMultiplier);
                 if (inputJson.notes[i].block == 4)
                 {
@@ -143,14 +144,16 @@ public class AudioManager : MonoBehaviour
     IEnumerator CountDown()
     {
         scoreManager.totalScore = 0;
-        GameManager.IsInvalid = false;
-        rightBladeRigidbody.isKinematic = false;
-        leftBladeRigidbody.isKinematic = false;
+
         if (GameManager.IsDebugMode)
         {
-            yield break;
+            GameManager.IsInvalid = false;
+            rightBladeRigidbody.isKinematic = false;
+            leftBladeRigidbody.isKinematic = false;
+            //yield break;
         }
         tutorialPanel.SetActive(true);
+        GameObject rulePage = rulePages[GameManager.CaluclatePlayModeIndex];
         rulePage.transform.localScale = new Vector3(1, 0, 1);
         rulePage.SetActive(true);
         GameManager.SESource.clip = GameManager.SEClip[4];
@@ -163,14 +166,19 @@ public class AudioManager : MonoBehaviour
         rulePage.SetActive(false);
         GameObject countDown = Instantiate(countDownPrefab, canvas.transform);
         Destroy(countDown, 1.6f);
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(1.8f);
         GameObject startObject = Instantiate(startPrefab, canvas.transform);
         Destroy(startObject, 1.2f);
-        yield return new WaitForSeconds(2.7f);
+        StartCoroutine(ActiveGameObjectUI(scoreTextObject, 2.0f, "TMP"));
+        yield return new WaitForSeconds(2f);
+        GameManager.IsInvalid = false;
+        rightBladeRigidbody.isKinematic = false;
+        leftBladeRigidbody.isKinematic = false;
     }
 
     IEnumerator ShowResult()
     {
+        scoreTextObject.GetComponent<TextMeshProUGUI>().color = new Color(1, 1, 1, 0);
         foreach (GameObject gameObject in rankImageObjects)
         {
             gameObject.GetComponent<Image>().color = new Color(gameObject.GetComponent<Image>().color.r, gameObject.GetComponent<Image>().color.g, gameObject.GetComponent<Image>().color.b, 0);
@@ -275,11 +283,11 @@ public class AudioManager : MonoBehaviour
         resultPanel.SetActive(true);
         GameManager.SESource.clip = GameManager.SEClip[4];
         GameManager.SESource.Play();
+        yield return StartCoroutine(ActiveTutorialPanel(resultPanel, 0.5f));
+        yield return StartCoroutine(ExpandTutorialPanel(resultPanel, 0.5f));
         StartCoroutine(inGameManager.NonActivePointLight());
         StartCoroutine(inGameManager.NonActiveSpotLight());
         StartCoroutine(inGameManager.NonActiveSpotLight2());
-        yield return StartCoroutine(ActiveTutorialPanel(resultPanel, 0.5f));
-        yield return StartCoroutine(ExpandTutorialPanel(resultPanel, 0.5f));
         StartCoroutine(ActiveGameObjectUI(rankImageObject, 0.5f, "Image"));
         TextMeshProUGUI[] tmpChildren = resultPanel.GetComponentsInChildren<TextMeshProUGUI>(true);
         foreach (TextMeshProUGUI child in tmpChildren)
@@ -294,20 +302,20 @@ public class AudioManager : MonoBehaviour
         StartCoroutine(ActiveKeyUI(spaceKeyUI2, 1f));
 
         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
-        GameManager.BGMScore[GameManager.SelectedBGMIndex] = finalScore;
-        GameManager.AllRedCount[GameManager.SelectedBGMIndex] = allRedCount;
-        GameManager.AllBlueCount[GameManager.SelectedBGMIndex] = allBlueCount;
-        GameManager.AllYellowCount[GameManager.SelectedBGMIndex] = allYellowCount;        
-        GameManager.RedCount[GameManager.SelectedBGMIndex] = RedCount;
-        GameManager.BlueCount[GameManager.SelectedBGMIndex] = BlueCount;
-        GameManager.YellowCount[GameManager.SelectedBGMIndex] = YellowCount;
-
-        StartCoroutine(inGameManager.BlackOut("ReturnTitle"));
+        GameManager.BGMScore[GameManager.SelectedBGMIndex] = Mathf.Max(GameManager.BGMScore[GameManager.SelectedBGMIndex], finalScore);
+        GameManager.AllRedCount[GameManager.SelectedBGMIndex] = Mathf.Max(GameManager.AllRedCount[GameManager.SelectedBGMIndex], allRedCount);
+        GameManager.AllBlueCount[GameManager.SelectedBGMIndex] = Mathf.Max(GameManager.AllBlueCount[GameManager.SelectedBGMIndex], allBlueCount);
+        GameManager.AllYellowCount[GameManager.SelectedBGMIndex] = Mathf.Max(GameManager.AllYellowCount[GameManager.SelectedBGMIndex], allYellowCount);
+        GameManager.RedCount[GameManager.SelectedBGMIndex] = Mathf.Max(GameManager.RedCount[GameManager.SelectedBGMIndex], RedCount);
+        GameManager.BlueCount[GameManager.SelectedBGMIndex] = Mathf.Max(GameManager.BlueCount[GameManager.SelectedBGMIndex], BlueCount);
+        GameManager.YellowCount[GameManager.SelectedBGMIndex] = Mathf.Max(GameManager.YellowCount[GameManager.SelectedBGMIndex], YellowCount);
         GameManager.SESource.clip = GameManager.SEClip[4];
         GameManager.SESource.Play();
         yield return StartCoroutine(AnExpandTutorialPanel(resultPanel, 0.5f));
         yield return StartCoroutine(AnActiveTutorialPanel(resultPanel, 0.5f));
         resultPanel.SetActive(false);
+        StartCoroutine(inGameManager.BlackOut("ReturnTitle"));
+        SceneManager.LoadScene("TitleScene");
     }
 
     IEnumerator ActiveGameObjectUI(GameObject gameObjectUI, float duration, string T)
@@ -630,7 +638,7 @@ public class AudioManager : MonoBehaviour
                         notePrefabInedex == 6)
                 {
                     Debug.Log(notePrefabInedex);
-                    GameObject noteObject = Instantiate(notesPrefab[notePrefabInedex], new Vector3(0, 0.8f, 10), Quaternion.identity);
+                    GameObject noteObject = Instantiate(notesPrefab[notePrefabInedex], new Vector3(notesPrefab[notePrefabInedex].transform.position.x, notesPrefab[notePrefabInedex].transform.position.y, 10), Quaternion.identity);
                     noteObject.transform.localScale = new Vector3(noteObject.transform.localScale.x, noteObject.transform.localScale.y, noteObject.transform.localScale.z * scaleMultiplier);
                     Destroy(noteObject, 7f);
                 }
@@ -691,8 +699,8 @@ public class AudioManager : MonoBehaviour
         tutorialPage10.SetActive(true);
         GameManager.SESource.clip = GameManager.SEClip[4];                         //SE•Ï‚¦‚é
         GameManager.SESource.Play();
-        yield return StartCoroutine(ActiveTutorialPanel(tutorialPage10, 0.2f));
-        yield return StartCoroutine(ExpandTutorialPanel(tutorialPage10, 0.2f));
+        yield return StartCoroutine(ActiveTutorialPanel(tutorialPage10, 0.5f));
+        yield return StartCoroutine(ExpandTutorialPanel(tutorialPage10, 0.5f));
         activeSpaceKeyUI =  StartCoroutine(ActiveKeyUI(fSpaceKeyUI, 2f));
         activeRKeyUI = StartCoroutine(ActiveKeyUI(fRKeyUI, 2f));
 
@@ -712,6 +720,8 @@ public class AudioManager : MonoBehaviour
         GameManager.SESource.Play();
         StopCoroutine(activeSpaceKeyUI);
         StopCoroutine(activeRKeyUI);
+        fSpaceKeyUI.SetActive(false);
+        fRKeyUI.SetActive(false);
         StartCoroutine(inGameManager.BlackOut("ReturnTitle"));
         foreach (var coroutine in returnOrStay)
         {
@@ -725,8 +735,8 @@ public class AudioManager : MonoBehaviour
         GameObject tutorialPage10 = tutorialPanel.transform.GetChild(9).gameObject; //Šm”F‰æ–Ê‚ð•Â‚¶‚é
         GameManager.SESource.clip = GameManager.SEClip[4];                         //SE•Ï‚¦‚é
         GameManager.SESource.Play();
-        yield return StartCoroutine(AnExpandTutorialPanel(tutorialPage10, 0.1f));
-        StartCoroutine(AnActiveTutorialPanel(tutorialPage10, 0.1f));
+        yield return StartCoroutine(AnExpandTutorialPanel(tutorialPage10, 0.5f));
+        StartCoroutine(AnActiveTutorialPanel(tutorialPage10, 0.5f));
         tutorialPage10.SetActive(false);
         StopCoroutine(activeSpaceKeyUI);
         StopCoroutine(activeRKeyUI);

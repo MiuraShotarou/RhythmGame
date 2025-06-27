@@ -20,20 +20,11 @@ public class JudgmentLineZ : MonoBehaviour
                 case ("MainNote"):
                     standardTimes[0] = Time.time;
                     break;
-                case ("RightNote"):
-                    standardTimes[1] = Time.time;
-                    break;
-                case ("LeftNote"):
-                    standardTimes[2] = Time.time;
-                    break;
                 case ("RightRightNote"):
                     standardTimes[3] = Time.time;
                     break;
                 case ("LeftLeftNote"):
                     standardTimes[4] = Time.time;
-                    break;
-                case ("MainNoteLong"):
-                    standardTimes[0] = Time.time;
                     break;
                 case ("RightNoteLong"):
                     standardTimes[1] = Time.time;

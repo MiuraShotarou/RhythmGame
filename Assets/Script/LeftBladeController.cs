@@ -62,7 +62,7 @@ public class LeftBladeController : MonoBehaviour
             if (transform.position.y < 1.15f)//0.97838
             {
                 rigidbody.velocity = Vector3.zero;
-                rigidbody.AddForce((transform.up * -1) * (slidePower * 1.8f), ForceMode.Force); //2.1
+                rigidbody.AddForce((transform.up * -1) * (slidePower * 1.8f), ForceMode.Force);
             }
         }
         else if (Input.GetButtonUp("LeftBlade")
@@ -72,7 +72,7 @@ public class LeftBladeController : MonoBehaviour
             isRotation = true;
             isInvalid = true;
             rigidbody.velocity = Vector3.zero;
-            rigidbody.AddForce(transform.up * slidePower, ForceMode.Force);
+            rigidbody.AddForce(transform.up * (slidePower * 2f), ForceMode.Force);
             StartCoroutine(RotationZControllerUp());
         }
     }
@@ -91,6 +91,7 @@ public class LeftBladeController : MonoBehaviour
             pos.y = Mathf.Clamp(pos.y, 0.86f, 0.853f);
             transform.position = pos;
             sparksEffect.SetActive(true);
+            collision.gameObject.GetComponent<Renderer>().material.SetColor("_EmissionColor", new Color(1, 1, 0.7843137254901961f));
 
             if (!collision.gameObject.GetComponent<NoteController>().IsCollision)
             {
@@ -100,8 +101,6 @@ public class LeftBladeController : MonoBehaviour
                     tutorialStartTime = Time.time;
                 }
                 float judgTime = Time.time - JudgmentLineZ.standardTimes[2];
-
-                Debug.Log($"LeftBladeÇÃJudgmentZ.standardTimes{JudgmentLineZ.standardTimes[2]}; judgTime{judgTime}");
                 noteType = scoreManager.JudgNoteType(collision.gameObject.tag);
                 judgment = scoreManager.JudgJudgment(judgTime);
                 if (judgment != Judgment.Miss)
@@ -129,7 +128,7 @@ public class LeftBladeController : MonoBehaviour
             transform.position = pos;
             if (collision.gameObject.CompareTag("LeftNoteLong")
                 &&
-                !collision.gameObject.GetComponent<NoteController>().isCollisionStay)
+                !collision.gameObject.GetComponent<NoteController>().IsCollisionStay)
             {
                 StartCoroutine(LongNoteManager(collision.gameObject));
                 noteType = scoreManager.JudgNoteType(collision.gameObject.tag);
@@ -158,14 +157,15 @@ public class LeftBladeController : MonoBehaviour
             pos.y = Mathf.Clamp(pos.y, 0.86f, 0.85228f);
             transform.position = pos;
             sparksEffect.SetActive(false);
+            collision.gameObject.GetComponent<Renderer>().material.SetColor("_EmissionColor", new Color(1, 1, 0));
         }
     }
 
     IEnumerator LongNoteManager(GameObject noteLong)
     {
-        noteLong.GetComponent<NoteController>().isCollisionStay = true;
+        noteLong.GetComponent<NoteController>().IsCollisionStay = true;
         yield return new WaitForSeconds(0.0166f);                                //ÇŸÇ⁄ÉèÉìÉtÉåÅ[ÉÄÇ…Ç¬Ç´â¡ì_
-        noteLong.GetComponent<NoteController>().isCollisionStay = false;
+        noteLong.GetComponent<NoteController>().IsCollisionStay = false;
     }
     IEnumerator RotationZControllerDown()
     {
@@ -193,7 +193,7 @@ public class LeftBladeController : MonoBehaviour
     {
         float timer = 0;
         float startTime = Time.time;
-        float duration = 3.5f;
+        float duration = 4f;
         float rotationT = 0;
         float rotationZ = 0;
         int roopCount = 0;

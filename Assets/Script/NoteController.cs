@@ -5,8 +5,6 @@ using UnityEngine;
 
 public class NoteController : MonoBehaviour
 {
-    public bool isCollisionStay = false;
-
     bool _isCollision = false;
 
     public bool IsCollision
@@ -15,6 +13,13 @@ public class NoteController : MonoBehaviour
         set { _isCollision = value; if (_isCollision) { CrashNote(); } }
     }
 
+    bool _isCollisionStay = false;
+
+    public bool IsCollisionStay
+    {
+        get { return _isCollisionStay; }
+        set { _isCollisionStay = value;}
+    }
     void CrashNote()
     {
         ParticleSystem particleSystem = GetComponentInChildren<ParticleSystem>();

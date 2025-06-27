@@ -13,11 +13,10 @@ public class BallController : MonoBehaviour
 
     GameObject arrowPlane;
     Rigidbody rigidbody;
-    float pushPower = 3f;
+    float pushPower = 5f;
     float miniY = 0.82f;
     bool isBlue = false;
     public static bool isNotDamage = false;
-    bool isNotBlockDamage = false;
 
     AudioSource audioSource;
     // Start is called before the first frame update
@@ -48,13 +47,13 @@ public class BallController : MonoBehaviour
             && !GameManager.IsInvalid)
         {
             rigidbody.velocity = Vector3.zero;
-            rigidbody.AddForce(Vector2.up * pushPower, ForceMode.Impulse);
+            rigidbody.AddForce(Vector2.up * (pushPower * 0.66f), ForceMode.Impulse);
         }
-        else if (Input.GetButton("PushBall")
-            && !GameManager.IsInvalid)
-        {
-            rigidbody.AddForce(Vector2.down * 150, ForceMode.Force);
-        }
+        //else if (Input.GetButton("PushBall")
+        //    && !GameManager.IsInvalid)
+        //{
+        //    rigidbody.AddForce(Vector2.down * 150, ForceMode.Force);
+        //}
         else if (Input.GetButtonDown("ChangeBlue")) //試験的
         {
             isBlue = true;
@@ -69,10 +68,8 @@ public class BallController : MonoBehaviour
         if (transform.position.x == 0
             && !GameManager.IsInvalid)
         {
-            //Debug.Log("Gravityが戻った");
             AntiGravityDeviceControler.isAntiGravity = true;
             GravityDeviceControler.isGravity = true;
-            isNotBlockDamage = false; //追加
         }
     }
 
@@ -119,7 +116,6 @@ public class BallController : MonoBehaviour
             {
                 float judgTime = Time.time - JudgmentLineZ.standardTimes[0];
 
-                //Debug.Log($"JudgmentZ.standardTimes{JudgmentLineZ.standardTimes[0]}; judgTime{judgTime}");
                 noteType = scoreManager.JudgNoteType(other.gameObject.tag);
                 judgment = scoreManager.JudgJudgment(judgTime);
                 scoreManager.CalculateScore(noteType, judgment, other.gameObject);
@@ -129,7 +125,9 @@ public class BallController : MonoBehaviour
         {
             isNotDamage = true;
 
-            if (!isBlue)
+            if (!isBlue
+                &&
+                !other.gameObject.GetComponent<NoteController>().IsCollision)
             {
                 Transform crackTrs = other.transform.GetChild(2);
                 crackTrs.gameObject.SetActive(true);
@@ -152,7 +150,6 @@ public class BallController : MonoBehaviour
             {
                 float judgTime = Time.time - JudgmentLineZ.standardTimes[5];
 
-                //Debug.Log($"JudgmentZ.standardTimes{JudgmentLineZ.standardTimes[0]}; judgTime{judgTime}");
                 noteType = scoreManager.JudgNoteType(other.gameObject.tag);
                 judgment = scoreManager.JudgJudgment(judgTime);
                 scoreManager.CalculateScore(noteType, judgment, other.gameObject);
@@ -163,7 +160,7 @@ public class BallController : MonoBehaviour
             isNotDamage = true;
             rigidbody.velocity = Vector3.zero;
             Vector3 forceDirection = new Vector3(-1f, 0.4f, 0f);
-            rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
+            rigidbody.AddForce(forceDirection * (pushPower * 0.2f), ForceMode.Impulse);
             StartCoroutine(ActiveGravityAndAntiGravity(0.1f)); //移植
 
             if (isBlue) //未確認
@@ -203,7 +200,7 @@ public class BallController : MonoBehaviour
             isNotDamage = true;
             rigidbody.velocity = Vector3.zero;
             Vector3 forceDirection = new Vector3(1f, 0.4f, 0f);
-            rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
+            rigidbody.AddForce(forceDirection * (pushPower * 0.2f), ForceMode.Impulse);
             StartCoroutine(ActiveGravityAndAntiGravity(0.1f)); //移植
 
             if (isBlue) //未確認
@@ -235,7 +232,7 @@ public class BallController : MonoBehaviour
         {
             rigidbody.velocity = Vector3.zero;
             Vector3 forceDirection = new Vector3(-1f, 0.1f, 0f);
-            rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
+            rigidbody.AddForce(forceDirection * (pushPower * 0.2f), ForceMode.Impulse);
             StartCoroutine(ActiveGravityAndAntiGravity(0.2f)); //移植
 
             isBlue = false;
@@ -252,7 +249,7 @@ public class BallController : MonoBehaviour
         {
             rigidbody.velocity = Vector3.zero;
             Vector3 forceDirection = new Vector3(1f, 0.1f, 0f);
-            rigidbody.AddForce(forceDirection * (pushPower * 0.5f), ForceMode.Impulse);
+            rigidbody.AddForce(forceDirection * (pushPower * 0.2f), ForceMode.Impulse);
             StartCoroutine(ActiveGravityAndAntiGravity(0.2f)); //いじり
 
             isBlue = false;
@@ -264,6 +261,12 @@ public class BallController : MonoBehaviour
                 StartCoroutine(IsNotDamageController());
                 inGameManager.Damage();
             }
+        }
+        else if (other.gameObject.CompareTag("RightNoteLong")
+             ||
+             other.gameObject.CompareTag("LeftNoteLong"))
+        {
+            return;
         }
         else if (other.gameObject.GetComponent<MeshRenderer>().enabled != false
             &&
@@ -296,7 +299,7 @@ public class BallController : MonoBehaviour
         {
             miniY = 0.82f;
 
-            isNotDamage = false;
+            StartCoroutine(IsNotDamageController());
         }
     }
 
@@ -343,9 +346,9 @@ public class BallController : MonoBehaviour
 
     IEnumerator LongNoteManager(GameObject noteLong)
     {
-        noteLong.GetComponent<NoteController>().isCollisionStay = true;
+        noteLong.GetComponent<NoteController>().IsCollisionStay = true;
         yield return new WaitForSeconds(0.0166f);                                //ほぼワンフレームにつき加点
-        noteLong.GetComponent<NoteController>().isCollisionStay = false;
+        noteLong.GetComponent<NoteController>().IsCollisionStay = false;
     }
     public IEnumerator PosReset(string collisionName)
     {

@@ -50,6 +50,11 @@ public class ScoreManager : MonoBehaviour
     float[] noteScore = { 10f, 1f, 12f }; //’·‰Ÿ‚µŒnƒm[ƒc‚Í10/10 ¨ 1score / 1second
     float[] judgmentMultiplier = { 0f, 1.0f, 1.2f, 1.4f };
 
+    public GameObject[] judgmentPrefabs;
+
+    GameObject _judgPrefab;
+
+    GameObject JudgPrefab { get { return _judgPrefab; } set { _judgPrefab = value; } }
     public NoteType JudgNoteType(string tag)
     {
         if (tag.Contains("Blue"))
@@ -70,17 +75,17 @@ public class ScoreManager : MonoBehaviour
             return NoteType.Normal;
         }
     }
-    public Judgment JudgJudgment(float judgTime)
+    public Judgment JudgJudgment(float judgTime) //Šî€ 0.053 ` 0.115
     {
-        if (judgTime < 0.055f) //0.02f‚ÌŠÔ‚É
+        if (judgTime < 0.023f) //0.02f‚ÌŠÔ‚É ¨ 0.01
         {
             return Judgment.Excellent;
         }
-        else if (judgTime < 0.085f) //0.05f‚ÌŠÔ‚É
+        else if (judgTime < 0.055f) //0.05f‚ÌŠÔ‚É
         {
             return Judgment.VeryGood;
         }
-        else if (judgTime < 0.115f) //0.08f‚ÌŠÔ‚É
+        else if (judgTime < 0.085f) //0.08f‚ÌŠÔ‚É
         {
             return Judgment.Good;
         }
@@ -130,6 +135,19 @@ public class ScoreManager : MonoBehaviour
             {
                 JudgmentsCounter[judgmentIndex]++;                  //ƒm[ƒc•]‰¿‚ğƒJƒeƒSƒŠ•Ê‚ÉƒJƒEƒ“ƒg‚·‚éB
                 other.GetComponent<NoteController>().IsCollision = true;
+            }
+
+            if (!JudgPrefab) //null
+            {
+                JudgPrefab = Instantiate(judgmentPrefabs[judgmentIndex], GameObject.Find("Canvas").transform);
+                Destroy(JudgPrefab, 1.35f);
+            }
+            else if (JudgPrefab)
+            {
+                JudgPrefab.GetComponent<Animator>().Play("2"); //‚±‚±‚â‚é
+                Destroy(JudgPrefab, 1.35f);
+                JudgPrefab = Instantiate(judgmentPrefabs[judgmentIndex], GameObject.Find("Canvas").transform);
+                Destroy(JudgPrefab, 1.35f);
             }
             //ƒm[ƒc•]‰¿‚ğ‰æ–Êã‚É•\¦‚·‚éB
         }

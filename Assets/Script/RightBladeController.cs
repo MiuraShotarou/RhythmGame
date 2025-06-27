@@ -14,7 +14,7 @@ public class RightBladeController : MonoBehaviour
 
     Rigidbody rigidbody;
 
-    float slidePower = 300f; //700
+    float slidePower = 300f;
 
     public bool isInvalid = false;
     bool isRotation = false;
@@ -27,12 +27,11 @@ public class RightBladeController : MonoBehaviour
         rigidbody = GetComponent<Rigidbody>();
     }
 
-    // Update is called once per frame
     void Update()
     {
         Vector3 pos = transform.position;
         pos.x = Mathf.Clamp(pos.x, 0.0265f, 0.20404f);
-        pos.y = Mathf.Clamp(pos.y, 0.83f, 1.188f); //0.97839f
+        pos.y = Mathf.Clamp(pos.y, 0.83f, 1.188f);
         transform.position = pos;
 
         if (transform.position == new Vector3(0.20404f, 1.188f, -0.11f))
@@ -41,7 +40,7 @@ public class RightBladeController : MonoBehaviour
             isDamageReturn = false;
         }
 
-        if ((transform.position.x == 0.2f && transform.position.y == 1.188f) //0.975f
+        if ((transform.position.x == 0.2f && transform.position.y == 1.188f)
             || (transform.position.x == 0.0265f && transform.position.y == 0.83f))
         {
             rigidbody.velocity = Vector3.zero;
@@ -63,7 +62,7 @@ public class RightBladeController : MonoBehaviour
             if (transform.position.y < 1.15f)//0.97838
             {
                 rigidbody.velocity = Vector3.zero;
-                rigidbody.AddForce((transform.up * -1) * (slidePower * 1.8f), ForceMode.Force); //2.1
+                rigidbody.AddForce((transform.up * -1) * (slidePower * 1.8f), ForceMode.Force);
             }
         }
         else if (Input.GetButtonUp("RightBlade")
@@ -92,6 +91,7 @@ public class RightBladeController : MonoBehaviour
             pos.y = Mathf.Clamp(pos.y, 0.86f, 0.853f);
             transform.position = pos;
             sparksEffect.SetActive(true);
+            collision.gameObject.GetComponent<Renderer>().material.SetColor("_EmissionColor", new Color(1, 1, 0.7843137254901961f));
 
             if (!collision.gameObject.GetComponent<NoteController>().IsCollision)
             {
@@ -123,12 +123,12 @@ public class RightBladeController : MonoBehaviour
             collision.gameObject.CompareTag("RightNoteLong"))
         {
             Vector3 pos = transform.position;
-            pos.x = Mathf.Clamp(pos.x, 0.05375149f, 0.20404f);
+            pos.x = Mathf.Clamp(pos.x, 0.053f, 0.20404f);
             pos.y = Mathf.Clamp(pos.y, 0.86f, 0.85228f);
             transform.position = pos;
             if (collision.gameObject.CompareTag("RightNoteLong")
                 &&
-                !collision.gameObject.GetComponent<NoteController>().isCollisionStay)
+                !collision.gameObject.GetComponent<NoteController>().IsCollisionStay)
             {
                 StartCoroutine(LongNoteManager(collision.gameObject));
                 noteType = scoreManager.JudgNoteType(collision.gameObject.tag);
@@ -157,14 +157,15 @@ public class RightBladeController : MonoBehaviour
             pos.y = Mathf.Clamp(pos.y, 0.86f, 0.85228f);
             transform.position = pos;
             sparksEffect.SetActive(false);
+            collision.gameObject.GetComponent<Renderer>().material.SetColor("_EmissionColor", new Color(1, 1, 0f));
         }
     }
 
     IEnumerator LongNoteManager(GameObject noteLong)
     {
-        noteLong.GetComponent<NoteController>().isCollisionStay = true;
+        noteLong.GetComponent<NoteController>().IsCollisionStay = true;
         yield return new WaitForSeconds(0.0166f);                                //ÇŸÇ⁄ÉèÉìÉtÉåÅ[ÉÄÇ…Ç¬Ç´â¡ì_
-        noteLong.GetComponent<NoteController>().isCollisionStay = false;
+        noteLong.GetComponent<NoteController>().IsCollisionStay = false;
     }
     IEnumerator RotationZControllerDown()
     {

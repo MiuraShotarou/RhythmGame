@@ -52,7 +52,7 @@ public class BallController : MonoBehaviour
             && !GameManager.IsInvalid)
         {
             rigidbody.velocity = Vector3.zero;
-            rigidbody.AddForce(Vector2.down * pushPower * 1.2f, ForceMode.Impulse);
+            rigidbody.AddForce(Vector2.down * pushPower * 1.5f, ForceMode.Impulse);
         }
         else if (Input.GetButtonUp("PushBall")
             && !GameManager.IsInvalid)
@@ -160,8 +160,8 @@ public class BallController : MonoBehaviour
         {
             isNotDamage = true;
             rigidbody.velocity = Vector3.zero;
-            Vector3 forceDirection = new Vector3(-1f, 0.4f, 0f);
-            rigidbody.AddForce(forceDirection * (pushPower * 0.2f), ForceMode.Impulse);
+            Vector3 forceDirection = new Vector3(-1f, 0.3f, 0f);
+            rigidbody.AddForce(forceDirection * (pushPower * 0.25f), ForceMode.Impulse);
             StartCoroutine(ActiveGravityAndAntiGravity(0.1f)); //à⁄êA
 
             if (isBlue) //ñ¢ämîF
@@ -200,8 +200,8 @@ public class BallController : MonoBehaviour
 
             isNotDamage = true;
             rigidbody.velocity = Vector3.zero;
-            Vector3 forceDirection = new Vector3(1f, 0.4f, 0f);
-            rigidbody.AddForce(forceDirection * (pushPower * 0.2f), ForceMode.Impulse);
+            Vector3 forceDirection = new Vector3(1f, 0.3f, 0f);
+            rigidbody.AddForce(forceDirection * (pushPower * 0.25f), ForceMode.Impulse);
             StartCoroutine(ActiveGravityAndAntiGravity(0.1f)); //à⁄êA
 
             if (isBlue) //ñ¢ämîF
@@ -232,8 +232,8 @@ public class BallController : MonoBehaviour
         else if (other.gameObject.CompareTag("RightDamageBlock"))
         {
             rigidbody.velocity = Vector3.zero;
-            Vector3 forceDirection = new Vector3(-1f, 0.1f, 0f);
-            rigidbody.AddForce(forceDirection * (pushPower * 0.2f), ForceMode.Impulse);
+            Vector3 forceDirection = new Vector3(-1f, 0f, 0f);
+            rigidbody.AddForce(forceDirection * (pushPower * 0.35f), ForceMode.Impulse);
             StartCoroutine(ActiveGravityAndAntiGravity(0.2f)); //à⁄êA
 
             isBlue = false;
@@ -249,8 +249,8 @@ public class BallController : MonoBehaviour
         else if (other.gameObject.CompareTag("LeftDamageBlock"))
         {
             rigidbody.velocity = Vector3.zero;
-            Vector3 forceDirection = new Vector3(1f, 0.1f, 0f);
-            rigidbody.AddForce(forceDirection * (pushPower * 0.2f), ForceMode.Impulse);
+            Vector3 forceDirection = new Vector3(1f, 0f, 0f);
+            rigidbody.AddForce(forceDirection * (pushPower * 0.35f), ForceMode.Impulse);
             StartCoroutine(ActiveGravityAndAntiGravity(0.2f)); //Ç¢Ç∂ÇË
 
             isBlue = false;

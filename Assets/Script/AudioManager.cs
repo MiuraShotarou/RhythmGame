@@ -96,7 +96,7 @@ public class AudioManager : MonoBehaviour
             NotesTime.Add(time);
             countNoteType.Add(inputJson.notes[i].block);
             NoteType.Add(inputJson.notes[i].type); //Listに登録しておいて、終点のLongNoteが見つかった場合にそちらをインスタンシエートする。
-            float z = NotesTime[i] * NotesSpeed + 0.5f;
+            float z = NotesTime[i] * NotesSpeed + GameManager.AdjustmentNoteZ; //0.5f
 
             if (inputJson.notes[i].type == 2
                 &&
@@ -237,6 +237,7 @@ public class AudioManager : MonoBehaviour
         int veryGoodCount = ScoreManager.JudgmentsCounter[2];
         int goodCount = ScoreManager.JudgmentsCounter[1];
         int missCount = ScoreManager.JudgmentsCounter[0];
+        int successCount = exellentCount + veryGoodCount + goodCount + missCount;
         GameObject rankImageObject = null;
         Rank rank = Rank.None;
 
@@ -248,7 +249,7 @@ public class AudioManager : MonoBehaviour
         {
             modeMultiplier = 1.2f;
         }
-        float exellentPercent = (float)exellentCount / NotesObj.Count * 100;
+        float exellentPercent = (float)successCount / NotesObj.Count * 100;
         if (exellentPercent == 100)
         {
             rank = Rank.SSS;
@@ -299,7 +300,6 @@ public class AudioManager : MonoBehaviour
         }
         int finalScore = Mathf.FloorToInt(totalScore * rankMultiplier);
         finalScore = Mathf.FloorToInt(finalScore * modeMultiplier);
-        int successCount = exellentCount + veryGoodCount + goodCount + missCount;
         missCount += NotesObj.Count - successCount;
 
         string[] resultTexts = {$"{GameManager.PlayModes[GameManager.CaluclatePlayModeIndex]}",

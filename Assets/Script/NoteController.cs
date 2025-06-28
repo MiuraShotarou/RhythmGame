@@ -28,6 +28,7 @@ public class NoteController : MonoBehaviour
             particleSystem.Emit(1);                                                 //プレファブ毎にパーティクルシステムを変えれば良い
         }
 
+
         switch (gameObject.tag)
         {
             case "MainNote":

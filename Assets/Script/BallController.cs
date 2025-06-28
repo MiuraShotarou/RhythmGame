@@ -14,7 +14,7 @@ public class BallController : MonoBehaviour
     GameObject arrowPlane;
     Rigidbody rigidbody;
     float pushPower = 5f;
-    float miniY = 0.82f;
+    float miniY = 0.79f;
     bool isBlue = false;
     public static bool isNotDamage = false;
 
@@ -33,28 +33,8 @@ public class BallController : MonoBehaviour
         Vector3 pos = transform.position;
         pos.y = Mathf.Clamp(pos.y, miniY, 100f);
         transform.position = pos;
-    }
 
-    void FixedUpdate()
-    {
-        if (Input.GetButtonDown("PushBall")
-            && !GameManager.IsInvalid)
-        {
-            rigidbody.velocity = Vector3.zero;
-            rigidbody.AddForce(Vector2.down * pushPower, ForceMode.Impulse);
-        }
-        else if (Input.GetButtonUp("PushBall")
-            && !GameManager.IsInvalid)
-        {
-            rigidbody.velocity = Vector3.zero;
-            rigidbody.AddForce(Vector2.up * (pushPower * 0.66f), ForceMode.Impulse);
-        }
-        //else if (Input.GetButton("PushBall")
-        //    && !GameManager.IsInvalid)
-        //{
-        //    rigidbody.AddForce(Vector2.down * 150, ForceMode.Force);
-        //}
-        else if (Input.GetButtonDown("ChangeBlue")) //ŽŽŒ±“I
+        if (Input.GetButtonDown("ChangeBlue")) //ŽŽŒ±“I
         {
             isBlue = true;
             arrowPlane.SetActive(true);
@@ -64,6 +44,27 @@ public class BallController : MonoBehaviour
             isBlue = false;
             arrowPlane.SetActive(false);
         }
+    }
+
+    void FixedUpdate()
+    {
+        if (Input.GetButtonDown("PushBall")
+            && !GameManager.IsInvalid)
+        {
+            rigidbody.velocity = Vector3.zero;
+            rigidbody.AddForce(Vector2.down * pushPower * 1.2f, ForceMode.Impulse);
+        }
+        else if (Input.GetButtonUp("PushBall")
+            && !GameManager.IsInvalid)
+        {
+            rigidbody.velocity = Vector3.zero;
+            rigidbody.AddForce(Vector2.up * (pushPower * 0.25f), ForceMode.Impulse);
+        }
+        //else if (Input.GetButton("PushBall")
+        //    && !GameManager.IsInvalid)
+        //{
+        //    rigidbody.AddForce(Vector2.down * 150, ForceMode.Force);
+        //}
 
         if (transform.position.x == 0
             && !GameManager.IsInvalid)
@@ -278,11 +279,6 @@ public class BallController : MonoBehaviour
             //Debug.Log($"{other.gameObject}‚È‚Ç‚É“–‚½‚Á‚Ä‚¢‚é");
             inGameManager.Damage();
             PosReset("Other"); //’Ç‰Á
-            if (isBlue)
-            {
-                isBlue = false;
-                arrowPlane.SetActive(false);
-            }
         }
     }
     private void OnTriggerExit(Collider other)
@@ -297,7 +293,7 @@ public class BallController : MonoBehaviour
             ||
             other.gameObject.CompareTag("LeftLeftNote"))
         {
-            miniY = 0.82f;
+            miniY = 0.79f;
 
             StartCoroutine(IsNotDamageController());
         }
@@ -369,7 +365,7 @@ public class BallController : MonoBehaviour
                 startPos = new Vector3(-0.3162518f, 1.126752f, -0.1f);
                 break;
             case "Other":
-                startPos = new Vector3(0f, 0.82f, -0.1f);
+                startPos = new Vector3(0f, 0.79f, -0.1f);
                 break;
         }
 

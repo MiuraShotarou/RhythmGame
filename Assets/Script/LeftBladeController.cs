@@ -109,7 +109,9 @@ public class LeftBladeController : MonoBehaviour
                 }
             }
         }
-        else if (!GameManager.IsTutorial)
+        else if (!GameManager.IsTutorial
+            &&
+            collision.gameObject.CompareTag("Stage"))
         {
             isDamageReturn = true;
             inGameManager.Damage();

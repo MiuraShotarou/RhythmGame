@@ -18,7 +18,8 @@ public class AudioManager : MonoBehaviour
     List<float> NotesTime = new List<float>();          //ノーツが判定線と重なる時間。
     List<GameObject> NotesObj = new List<GameObject>(); //総ノーツ数
 
-    int memoraizeNoteNum = 0;
+    int memoraizeNoteNumR = 0;
+    int memoraizeNoteNumL = 0;
     [SerializeField] private float NotesSpeed;                     //ノーツの速度。
     [SerializeField] GameObject[] notesPrefab = new GameObject[9];                     //ノーツPrefab。
     [SerializeField] GameObject rightNoteEffect;
@@ -43,7 +44,7 @@ public class AudioManager : MonoBehaviour
     [SerializeField] GameObject scoreTextObject;
     [SerializeField] GameObject canvas;
 
-    [SerializeField] GameObject[] resultTextObjects = new GameObject[10];
+    [SerializeField] GameObject[] resultTextObjects = new GameObject[11];
     [SerializeField] GameObject[] rankImageObjects = new GameObject[5];
 
     Coroutine activeSpaceKeyUI;
@@ -62,7 +63,6 @@ public class AudioManager : MonoBehaviour
 
     public void Play()
     {
-        Debug.Log($"{RedCount}{BlueCount}{YellowCount}");
         string songName = GameManager.BGMClip[GameManager.SelectedBGMIndex].name;
         GameManager.IsInvalid = true;
         rightBladeRigidbody.isKinematic = true;
@@ -100,38 +100,61 @@ public class AudioManager : MonoBehaviour
 
             if (inputJson.notes[i].type == 2
                 &&
-                memoraizeNoteNum == 0)
+                inputJson.notes[i].block == 4
+                &&
+                memoraizeNoteNumR == 0)
             {
-                memoraizeNoteNum = inputJson.notes[i].num;
+                memoraizeNoteNumR = inputJson.notes[i].num;
                 continue;
             }
             else if (inputJson.notes[i].type == 2
                 &&
-                memoraizeNoteNum != 0)
+                inputJson.notes[i].block == 6
+                &&
+                memoraizeNoteNumL == 0)
+            {
+                memoraizeNoteNumL = inputJson.notes[i].num;
+                continue;
+            }
+            else if (inputJson.notes[i].type == 2
+                &&
+                inputJson.notes[i].block == 4
+                &&
+                memoraizeNoteNumR != 0)
             {
                 GameObject effectObject;
 
-                int longMultiplier = inputJson.notes[i].num - memoraizeNoteNum;
-                memoraizeNoteNum = 0;
+                int longMultiplier = inputJson.notes[i].num - memoraizeNoteNumR;
+                memoraizeNoteNumR = 0;
                 z = z - (0.015688f * longMultiplier);
                 GameObject longNote = Instantiate(notePrefab, new Vector3(notePrefab.transform.position.x, notePrefab.transform.position.y, z), Quaternion.identity);
                 longNote.transform.localScale = new Vector3(notePrefab.transform.localScale.x, notePrefab.transform.localScale.y, notePrefab.transform.localScale.z * longMultiplier);
-                if (inputJson.notes[i].block == 4)
-                {
-                    effectObject = Instantiate(rightNoteEffect);
-                    effectObject.transform.SetParent(longNote.transform);
-                    effectObject.transform.localPosition = new Vector3(0, 0, -0.5f);
-                }
-                else if (inputJson.notes[i].block == 6)
-                {
-                    effectObject = Instantiate(leftNoteEffect);
-                    effectObject.transform.SetParent(longNote.transform);
-                    effectObject.transform.localPosition = new Vector3(0, 0, -0.5f);
-                }
+                effectObject = Instantiate(rightNoteEffect);
+                effectObject.transform.SetParent(longNote.transform);
+                effectObject.transform.localPosition = new Vector3(0, 0, -0.5f);
                 NotesObj.Add(longNote);
                 continue;
             }
-            NotesObj.Add(Instantiate(notePrefab, new Vector3(notePrefab.transform.position.x, notePrefab.transform.position.y, z), notePrefab.transform.rotation));
+            else if (inputJson.notes[i].type == 2
+                &&
+                inputJson.notes[i].block == 6
+                &&
+                memoraizeNoteNumL != 0)
+            {
+                GameObject effectObject;
+
+                int longMultiplier = inputJson.notes[i].num - memoraizeNoteNumL;
+                memoraizeNoteNumL = 0;
+                z = z - (0.015688f * longMultiplier);
+                GameObject longNote = Instantiate(notePrefab, new Vector3(notePrefab.transform.position.x, notePrefab.transform.position.y, z), Quaternion.identity);
+                longNote.transform.localScale = new Vector3(notePrefab.transform.localScale.x, notePrefab.transform.localScale.y, notePrefab.transform.localScale.z * longMultiplier);
+                effectObject = Instantiate(leftNoteEffect);
+                effectObject.transform.SetParent(longNote.transform);
+                effectObject.transform.localPosition = new Vector3(0, 0, -0.5f);
+                NotesObj.Add(longNote);
+                continue;
+            }
+                NotesObj.Add(Instantiate(notePrefab, new Vector3(notePrefab.transform.position.x, notePrefab.transform.position.y, z), notePrefab.transform.rotation));
         }
 
         if (GameManager.SelectedBGMIndex == 0)
@@ -187,19 +210,25 @@ public class AudioManager : MonoBehaviour
         {
             gameObject.GetComponent<TextMeshProUGUI>().color = new Color(1, 1, 1, 0);
         }
-
         yield return new WaitUntil(() => GameManager.BGMSource.isPlaying == true);
-        yield return new WaitForSeconds(2f);
+
+        if (GameManager.CaluclatePlayModeIndex == 1)
+        {
+            yield return new WaitForSeconds(2f);
+            yield return new WaitUntil(() => GameManager.BGMSource.isPlaying == false); //待機
+            yield return new WaitForSeconds(2f);
+            yield return new WaitUntil(() => GameManager.BGMSource.isPlaying == false); //待機
+            yield return new WaitForSeconds(2f);
+        }
         yield return new WaitUntil(() => GameManager.BGMSource.isPlaying == false); //待機
-        yield return new WaitForSeconds(2f);
-        yield return new WaitUntil(() => GameManager.BGMSource.isPlaying == false); //待機
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(0.5f);
         yield return new WaitUntil(() => GameManager.BGMSource.isPlaying == false); //待機
 
         GameManager.IsInvalid = true;
         rightBladeRigidbody.isKinematic = true;
         leftBladeRigidbody.isKinematic = true;
         int totalScore = Mathf.FloorToInt(scoreManager.totalScore);
+        float modeMultiplier = 0;
         float rankMultiplier = 0;
         int allRedCount = 0;
         int allBlueCount = 0;
@@ -211,8 +240,15 @@ public class AudioManager : MonoBehaviour
         GameObject rankImageObject = null;
         Rank rank = Rank.None;
 
+        if (GameManager.CaluclatePlayModeIndex == 0)
+        {
+            modeMultiplier = 1;
+        }
+        else if (GameManager.CaluclatePlayModeIndex == 1)
+        {
+            modeMultiplier = 1.2f;
+        }
         float exellentPercent = (float)exellentCount / NotesObj.Count * 100;
-        Debug.Log(exellentPercent);
         if (exellentPercent == 100)
         {
             rank = Rank.SSS;
@@ -262,13 +298,15 @@ public class AudioManager : MonoBehaviour
             }
         }
         int finalScore = Mathf.FloorToInt(totalScore * rankMultiplier);
+        finalScore = Mathf.FloorToInt(finalScore * modeMultiplier);
         int successCount = exellentCount + veryGoodCount + goodCount + missCount;
         missCount += NotesObj.Count - successCount;
 
-        string[] resultTexts = {$"× {rankMultiplier.ToString("F1")}",
-                               $"<color=#ff0000>MainNote</color> {RedCount}",         //総エクセレントノーツ数 // 総Mainノーツ数 + 倍率
-                               $"<color=#0000ff>ImpactNote</color> {BlueCount}",
-                               $"<color=#ffff00>BladeNote</color> {YellowCount}",
+        string[] resultTexts = {$"{GameManager.PlayModes[GameManager.CaluclatePlayModeIndex]}",
+                               $"× {rankMultiplier.ToString("F1")}",
+                               $"<#ff0000>MainNote</color> {RedCount}",         //総エクセレントノーツ数 // 総Mainノーツ数 + 倍率
+                               $"<#0000ff>ImpactNote</color> {BlueCount}",
+                               $"<#ffff00>BladeNote</color> {YellowCount}",
                                $"<#FFFFFF>Excellent</color> {exellentCount}",
                                $"<#C8C8C8>VeryGood</color> {veryGoodCount}",
                                $"<#969696>Good</color> {goodCount}",

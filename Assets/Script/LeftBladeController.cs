@@ -12,6 +12,7 @@ public class LeftBladeController : MonoBehaviour
     [SerializeField] InGameManager inGameManager;
     [SerializeField] GameObject sparksEffect;
 
+    Collider collider;
     Rigidbody rigidbody;
 
     float slidePower = 300f;
@@ -24,6 +25,7 @@ public class LeftBladeController : MonoBehaviour
     public bool isSuccessInvalid = false;
     void Start()
     {
+        collider = GetComponent<Collider>();
         rigidbody = GetComponent<Rigidbody>();
     }
 
@@ -50,6 +52,7 @@ public class LeftBladeController : MonoBehaviour
             &&
             !isInvalid)
         {
+            collider.enabled = true;
             isRotation = false;
             rigidbody.velocity = Vector3.zero;
             rigidbody.AddForce((transform.up * -1) * slidePower, ForceMode.Force);
@@ -160,6 +163,7 @@ public class LeftBladeController : MonoBehaviour
             transform.position = pos;
             sparksEffect.SetActive(false);
             collision.gameObject.GetComponent<Renderer>().material.SetColor("_EmissionColor", new Color(1, 1, 0));
+            collider.enabled = false;
         }
     }
 
@@ -217,6 +221,7 @@ public class LeftBladeController : MonoBehaviour
     {
         isRotation = true;
         isInvalid = true;
+        collider.enabled = false;
         rigidbody.velocity = Vector3.zero;
 
         float timer = 0;

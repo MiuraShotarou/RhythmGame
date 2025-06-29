@@ -64,9 +64,6 @@ public class AudioManager : MonoBehaviour
     public void Play()
     {
         string songName = GameManager.BGMClip[GameManager.SelectedBGMIndex].name;
-        GameManager.IsInvalid = true;
-        rightBladeRigidbody.isKinematic = true;
-        leftBladeRigidbody.isKinematic = true;
         if (!GameManager.IsTutorial)
         {
             StartCoroutine(PlayBGM(songName));
@@ -80,10 +77,10 @@ public class AudioManager : MonoBehaviour
     IEnumerator PlayBGM(string songName)
     {
         yield return StartCoroutine(CountDown());
-        GameManager.BGMSource.clip = GameManager.BGMClip[GameManager.SelectedBGMIndex]; //のちにインデックスは引数で決定する仕様に。
+        GameManager.BGMSource.clip = GameManager.BGMClip[GameManager.SelectedBGMIndex];
         GameManager.BGMSource.Play();
 
-        string inputString = Resources.Load<TextAsset>(songName).ToString(); //SongName ← string "テスト";
+        string inputString = Resources.Load<TextAsset>(songName).ToString();
         Data inputJson = JsonUtility.FromJson<Data>(inputString);            //JsonUtility.FromJson<Data>(inputString);
 
         noteNum = inputJson.notes.Length;
@@ -95,8 +92,8 @@ public class AudioManager : MonoBehaviour
             float time = (beatSec * inputJson.notes[i].num / (float)inputJson.notes[i].LPB) + inputJson.offset + 0.01f;
             NotesTime.Add(time);
             countNoteType.Add(inputJson.notes[i].block);
-            NoteType.Add(inputJson.notes[i].type); //Listに登録しておいて、終点のLongNoteが見つかった場合にそちらをインスタンシエートする。
-            float z = NotesTime[i] * NotesSpeed + GameManager.AdjustmentNoteZ; //0.5f
+            NoteType.Add(inputJson.notes[i].type);                                //Listに登録しておいて、終点のLongNoteが見つかった場合にそちらをインスタンシエートする。
+            float z = NotesTime[i] * NotesSpeed + 0.5f;
 
             if (inputJson.notes[i].type == 2
                 &&
@@ -168,13 +165,6 @@ public class AudioManager : MonoBehaviour
     {
         scoreManager.totalScore = 0;
 
-        if (GameManager.IsDebugMode)
-        {
-            GameManager.IsInvalid = false;
-            rightBladeRigidbody.isKinematic = false;
-            leftBladeRigidbody.isKinematic = false;
-            //yield break;
-        }
         tutorialPanel.SetActive(true);
         GameObject rulePage = rulePages[GameManager.CaluclatePlayModeIndex];
         rulePage.transform.localScale = new Vector3(1, 0, 1);
@@ -215,14 +205,14 @@ public class AudioManager : MonoBehaviour
         if (GameManager.CaluclatePlayModeIndex == 1)
         {
             yield return new WaitForSeconds(2f);
-            yield return new WaitUntil(() => GameManager.BGMSource.isPlaying == false); //待機
+            yield return new WaitUntil(() => GameManager.BGMSource.isPlaying == false); 
             yield return new WaitForSeconds(2f);
-            yield return new WaitUntil(() => GameManager.BGMSource.isPlaying == false); //待機
+            yield return new WaitUntil(() => GameManager.BGMSource.isPlaying == false); 
             yield return new WaitForSeconds(2f);
         }
-        yield return new WaitUntil(() => GameManager.BGMSource.isPlaying == false); //待機
+        yield return new WaitUntil(() => GameManager.BGMSource.isPlaying == false); 
         yield return new WaitForSeconds(0.5f);
-        yield return new WaitUntil(() => GameManager.BGMSource.isPlaying == false); //待機
+        yield return new WaitUntil(() => GameManager.BGMSource.isPlaying == false); 
 
         GameManager.IsInvalid = true;
         rightBladeRigidbody.isKinematic = true;
@@ -304,7 +294,7 @@ public class AudioManager : MonoBehaviour
 
         string[] resultTexts = {$"{GameManager.PlayModes[GameManager.CaluclatePlayModeIndex]}",
                                $"× {rankMultiplier.ToString("F1")}",
-                               $"<#ff0000>MainNote</color> {RedCount}",         //総エクセレントノーツ数 // 総Mainノーツ数 + 倍率
+                               $"<#ff0000>MainNote</color> {RedCount}",
                                $"<#0000ff>ImpactNote</color> {BlueCount}",
                                $"<#ffff00>BladeNote</color> {YellowCount}",
                                $"<#FFFFFF>Excellent</color> {exellentCount}",
@@ -314,7 +304,7 @@ public class AudioManager : MonoBehaviour
                                $"{totalScore}",
                                $"{finalScore}" };
 
-        GameObject completedObject = Instantiate(completedPrefab, canvas.transform);　//コンプリートの文字
+        GameObject completedObject = Instantiate(completedPrefab, canvas.transform);
         Destroy(completedObject, 1.5f);
         yield return new WaitForSeconds(5f);
         resultPanel.transform.localScale = new Vector3(1, 0, 1);
@@ -361,7 +351,7 @@ public class AudioManager : MonoBehaviour
         gameObjectUI.SetActive(true);
         float a = 0;
         float timer = 0;
-        float startTime = Time.time; //ゲーム開始からの時間　仮：1min →　新time - imin
+        float startTime = Time.time; 
         Color roopColor = Color.white;
 
         if (T == "TMP")
@@ -372,7 +362,7 @@ public class AudioManager : MonoBehaviour
         {
             roopColor = gameObjectUI.GetComponent<Image>().color;
         }
-        while (timer <= duration) //時間で振動の切り上げ
+        while (timer <= duration) 
         {
             roopColor.a = a;
 
@@ -581,10 +571,10 @@ public class AudioManager : MonoBehaviour
         {
             float a = 0;
             float timer = 0;
-            float startTime = Time.time; //ゲーム開始からの時間　仮：1min →　新time - imin
+            float startTime = Time.time; 
             Color roopColor = gameObject.GetComponent<Image>().color;
 
-            while (timer <= duration) //時間で振動の切り上げ
+            while (timer <= duration) 
             {
                 roopColor.a = a;
                 gameObject.GetComponent<Image>().color = roopColor;
@@ -601,10 +591,10 @@ public class AudioManager : MonoBehaviour
     {
         {
             float timer = 0;
-            float startTime = Time.time; //ゲーム開始からの時間　仮：1min →　新time - imin
+            float startTime = Time.time; 
             float roopScaleY = 0;
 
-            while (timer <= duration) //時間で振動の切り上げ
+            while (timer <= duration) 
             {
                 gameObject.transform.localScale = new Vector3(1, roopScaleY, 1);
 
@@ -620,10 +610,10 @@ public class AudioManager : MonoBehaviour
         {
             float a = 1;
             float timer = 0;
-            float startTime = Time.time; //ゲーム開始からの時間　仮：1min →　新time - imin
+            float startTime = Time.time; 
             Color roopColor = gameObject.GetComponent<Image>().color;
 
-            while (timer <= duration) //時間で振動の切り上げ
+            while (timer <= duration) 
             {
                 roopColor.a = a;
                 gameObject.GetComponent<Image>().color = roopColor;
@@ -640,10 +630,10 @@ public class AudioManager : MonoBehaviour
     {
         {
             float timer = 0;
-            float startTime = Time.time; //ゲーム開始からの時間　仮：1min →　新time - imin
+            float startTime = Time.time; 
             float roopScaleY = 0;
 
-            while (timer <= duration) //時間で振動の切り上げ
+            while (timer <= duration) 
             {
                 gameObject.transform.localScale = new Vector3(1, roopScaleY, 1);
 
@@ -719,7 +709,7 @@ public class AudioManager : MonoBehaviour
     {
         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
 
-        GameManager.SESource.clip = GameManager.SEClip[4];                         //SE変える
+        GameManager.SESource.clip = GameManager.SEClip[4];                         
         GameManager.SESource.Play();
         StartCoroutine(inGameManager.BlackOut("Play"));
         foreach (var coroutine in tutorialJudgs)
@@ -735,7 +725,7 @@ public class AudioManager : MonoBehaviour
         GameObject tutorialPage10 = tutorialPanel.transform.GetChild(9).gameObject; //確認画面を開く
         tutorialPage10.transform.localScale = new Vector3(1, 0, 1);
         tutorialPage10.SetActive(true);
-        GameManager.SESource.clip = GameManager.SEClip[4];                         //SE変える
+        GameManager.SESource.clip = GameManager.SEClip[4];                         
         GameManager.SESource.Play();
         yield return StartCoroutine(ActiveTutorialPanel(tutorialPage10, 0.5f));
         yield return StartCoroutine(ExpandTutorialPanel(tutorialPage10, 0.5f));
@@ -754,7 +744,7 @@ public class AudioManager : MonoBehaviour
     {
         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
 
-        GameManager.SESource.clip = GameManager.SEClip[4];                         //SE変える(もにゅ)
+        GameManager.SESource.clip = GameManager.SEClip[4];
         GameManager.SESource.Play();
         StopCoroutine(activeSpaceKeyUI);
         StopCoroutine(activeRKeyUI);
@@ -771,7 +761,7 @@ public class AudioManager : MonoBehaviour
         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.R));
 
         GameObject tutorialPage10 = tutorialPanel.transform.GetChild(9).gameObject; //確認画面を閉じる
-        GameManager.SESource.clip = GameManager.SEClip[4];                         //SE変える
+        GameManager.SESource.clip = GameManager.SEClip[4];                         
         GameManager.SESource.Play();
         yield return StartCoroutine(AnExpandTutorialPanel(tutorialPage10, 0.5f));
         StartCoroutine(AnActiveTutorialPanel(tutorialPage10, 0.5f));

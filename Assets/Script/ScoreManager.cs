@@ -1,8 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public enum NoteCategory //–¢Žg—p
 {
@@ -85,7 +81,7 @@ public class ScoreManager : MonoBehaviour
         {
             return Judgment.VeryGood;
         }
-        else if (judgTime < 0.085f) //0.08f‚ÌŠÔ‚É
+        else if (judgTime < 0.115f) //0.08f‚ÌŠÔ‚É
         {
             return Judgment.Good;
         }

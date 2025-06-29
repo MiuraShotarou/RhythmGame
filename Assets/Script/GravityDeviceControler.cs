@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GravityDeviceControler : MonoBehaviour
@@ -9,6 +8,16 @@ public class GravityDeviceControler : MonoBehaviour
     Rigidbody rigidbody;
 
     public static bool isGravity = true; // PushBall‹N“®—p
+
+    //private void OnTriggerEnter(Collider other)
+    //{
+    //    if (other.gameObject.CompareTag("Ball")
+    //       && other.transform.position.x == 0) //0.91f
+    //    {
+    //        rigidbody = other.GetComponent<Rigidbody>();
+    //        rigidbody.AddForce(forceDirectionY * 2, ForceMode.Impulse);
+    //    }
+    //}
     void OnTriggerStay(Collider other)
     {
         if (!isGravity)
@@ -18,10 +27,8 @@ public class GravityDeviceControler : MonoBehaviour
 
         if (other.gameObject.CompareTag("Ball")
             && other.transform.position.y > 0.93f //0.91f
-            //&& isGravity
             )
         {
-            //Debug.Log("Gravity‚©‚©‚Á‚Ä‚¢‚é");
             rigidbody = other.GetComponent<Rigidbody>();
             rigidbody.AddForce(forceDirectionY * forcePower, ForceMode.Force);
         }

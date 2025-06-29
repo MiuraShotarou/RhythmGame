@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class JudgmentLineZ : MonoBehaviour
@@ -37,10 +35,5 @@ public class JudgmentLineZ : MonoBehaviour
                     break;
             }
         }
-
-        //if (other.gameObject.CompareTag("MissLine"))
-        //{
-            //Debug.Log($"MissTime{Time.time - standardTimes[1]}");
-        //}
     }
 }

@@ -28,12 +28,12 @@ public enum Judgment
 }
 public enum Rank
 {
-    SSS, 
-    S,
-    A,
-    B,
+    None,
     C,
-    None
+    B,
+    A,
+    S,
+    SSS, 
 }
 
 public class ScoreManager : MonoBehaviour
@@ -81,7 +81,7 @@ public class ScoreManager : MonoBehaviour
         {
             return Judgment.VeryGood;
         }
-        else if (judgTime < 1f) //0.08f‚ÌŠÔ‚É
+        else if (judgTime < 2f) //0.08f‚ÌŠÔ‚É
         {
             return Judgment.Good;
         }

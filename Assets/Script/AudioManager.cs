@@ -325,6 +325,7 @@ public class AudioManager : MonoBehaviour
 
         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
         GameManager.BGMScore[GameManager.SelectedBGMIndex] = Mathf.Max(GameManager.BGMScore[GameManager.SelectedBGMIndex], finalScore);
+        GameManager.BGMRank[GameManager.SelectedBGMIndex] = Mathf.Max(GameManager.BGMRank[GameManager.SelectedBGMIndex], (int)rank);
         GameManager.AllRedCount[GameManager.SelectedBGMIndex] = Mathf.Max(GameManager.AllRedCount[GameManager.SelectedBGMIndex], allRedCount);
         GameManager.AllBlueCount[GameManager.SelectedBGMIndex] = Mathf.Max(GameManager.AllBlueCount[GameManager.SelectedBGMIndex], allBlueCount);
         GameManager.AllYellowCount[GameManager.SelectedBGMIndex] = Mathf.Max(GameManager.AllYellowCount[GameManager.SelectedBGMIndex], allYellowCount);
@@ -721,7 +722,6 @@ public class AudioManager : MonoBehaviour
         StopCoroutine(activeRKeyUI);
         fSpaceKeyUI.SetActive(false);
         fRKeyUI.SetActive(false);
-        GameManager.BGMSource.Stop();
         StartCoroutine(inGameManager.BlackOut("ReturnTitle"));
         GameManager.IsPause = false;
     }

@@ -73,6 +73,10 @@ public class BallController : MonoBehaviour
             AntiGravityDeviceControler.isAntiGravity = true;
             GravityDeviceControler.isGravity = true;
         }
+        else if (transform.position.y >= 0.75)
+        {
+            isNotDamage = false;
+        }
     }
 
     NoteType noteType;
@@ -91,6 +95,7 @@ public class BallController : MonoBehaviour
             ||
             other.gameObject.CompareTag("MainNoteLong")) //連続でNoteを叩く場合、前NoteのJudgmentLineZが当たった時間 + 0.115fの間に次NoteがJudgmentLineZに当たってはいけない。
         {
+            isNotDamage = true;
             if (GameManager.IsTutorial
                 &&
                 GameManager.IsLoop)
@@ -99,11 +104,7 @@ public class BallController : MonoBehaviour
                 audioSource.Play();
             }
 
-            if (!isBlue)
-            {
-                isNotDamage = true;
-            }
-            else if (isBlue)
+            if (isBlue)
             {
                 inGameManager.Damage();
                 PosReset("Other"); //追加
@@ -195,7 +196,7 @@ public class BallController : MonoBehaviour
             &&
             !other.gameObject.GetComponent<NoteController>().IsCollision)
         {
-            Debug.Log(rigidbody.velocity);
+            isNotDamage = true;
             if (GameManager.IsTutorial
                 &&
                 GameManager.IsLoop)
@@ -204,7 +205,6 @@ public class BallController : MonoBehaviour
                 audioSource.Play();
             }
 
-            isNotDamage = true;
             rigidbody.velocity = Vector3.zero;
             Vector3 forceDirection = new Vector3(1f, 0.4f, 0f);
             rigidbody.AddForce(forceDirection * (pushPower * 0.25f), ForceMode.Impulse);
@@ -248,7 +248,7 @@ public class BallController : MonoBehaviour
                 &&
                 !isNotDamage)
             {
-                StartCoroutine(IsNotDamageController());
+                isNotDamage = true;
                 inGameManager.Damage();
             }
         }
@@ -265,7 +265,7 @@ public class BallController : MonoBehaviour
                 &&
                 !isNotDamage)
             {
-                StartCoroutine(IsNotDamageController());
+                isNotDamage= true;
                 inGameManager.Damage();
             }
         }
@@ -281,7 +281,8 @@ public class BallController : MonoBehaviour
             &&
             !GameManager.IsTutorial)
         {
-            StartCoroutine(IsNotDamageController());
+            Debug.Log(other.gameObject.name);
+            isNotDamage = true;
             //Debug.Log($"{other.gameObject}などに当たっている");
             inGameManager.Damage();
             PosReset("Other"); //追加
@@ -301,7 +302,7 @@ public class BallController : MonoBehaviour
         {
             miniY = 0.79f;
 
-            StartCoroutine(IsNotDamageController());
+            isNotDamage = true;
         }
     }
 
@@ -382,18 +383,4 @@ public class BallController : MonoBehaviour
             yield return null;
         }
     }
-
-    IEnumerator IsNotDamageController()
-    {
-        isNotDamage = true;
-        yield return new WaitForSeconds(0.5f);
-        isNotDamage = false;
-    }
 }
-
-
-// ボールを落とし、元に戻す。
-// ① ポジションを指定し、そこに移動させる。
-// ② 減速させて指定の位置で止める。
-// ③ 指定した位置にだけ重力を発生させる。
-// ④ 上下にベクトルを与え続け、ボタンを押すとオン・オフが出来る。

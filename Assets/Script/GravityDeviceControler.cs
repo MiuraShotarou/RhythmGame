@@ -8,16 +8,6 @@ public class GravityDeviceControler : MonoBehaviour
     Rigidbody rigidbody;
 
     public static bool isGravity = true; // PushBall‹N“®—p
-
-    //private void OnTriggerEnter(Collider other)
-    //{
-    //    if (other.gameObject.CompareTag("Ball")
-    //       && other.transform.position.x == 0) //0.91f
-    //    {
-    //        rigidbody = other.GetComponent<Rigidbody>();
-    //        rigidbody.AddForce(forceDirectionY * 2, ForceMode.Impulse);
-    //    }
-    //}
     void OnTriggerStay(Collider other)
     {
         if (!isGravity)

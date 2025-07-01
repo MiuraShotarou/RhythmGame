@@ -1,11 +1,9 @@
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -40,6 +38,7 @@ public class AudioManager : MonoBehaviour
     [SerializeField] GameObject startPrefab;
     [SerializeField] GameObject completedPrefab;
     [SerializeField] GameObject resultPanel;
+    [SerializeField] GameObject pausePanel;
     [SerializeField] GameObject[] rulePages;
     [SerializeField] GameObject scoreTextObject;
     [SerializeField] GameObject canvas;
@@ -56,10 +55,12 @@ public class AudioManager : MonoBehaviour
     static int _redCount;
     static int _buleCount;
     static int _yellowCount;
+    static bool _isTutorialPause;
 
     public static int RedCount { get { return _redCount; } set { _redCount = value; } }
     public static int BlueCount { get { return _buleCount; } set { _buleCount = value; } }
     public static int YellowCount { get { return _yellowCount; } set { _yellowCount = value; } }
+    public static bool IsTutorialPause { get { return _isTutorialPause ; } set {  _isTutorialPause = value; } }
 
     public void Play()
     {
@@ -153,30 +154,27 @@ public class AudioManager : MonoBehaviour
             }
                 NotesObj.Add(Instantiate(notePrefab, new Vector3(notePrefab.transform.position.x, notePrefab.transform.position.y, z), notePrefab.transform.rotation));
         }
-
-        if (GameManager.SelectedBGMIndex == 0)
-        {
-            yield return new WaitForSeconds(32f);
-            yield break;
-        }
     }
 
     IEnumerator CountDown()
     {
         scoreManager.totalScore = 0;
 
-        tutorialPanel.SetActive(true);
-        GameObject rulePage = rulePages[GameManager.CaluclatePlayModeIndex];
-        rulePage.transform.localScale = new Vector3(1, 0, 1);
-        rulePage.SetActive(true);
-        GameManager.SESource.clip = GameManager.SEClip[4];
-        GameManager.SESource.Play();
-        yield return StartCoroutine(ActiveTutorialPanel(rulePage, 0.5f));
-        StartCoroutine(ExpandTutorialPanel(rulePage, 0.5f));
-        yield return new WaitForSeconds(9f);
-        yield return StartCoroutine(AnExpandTutorialPanel(rulePage, 0.5f));
-        yield return StartCoroutine(AnActiveTutorialPanel(rulePage, 0.5f));
-        rulePage.SetActive(false);
+        if (!GameManager.IsGameOver)
+        {
+            tutorialPanel.SetActive(true);
+            GameObject rulePage = rulePages[GameManager.CaluclatePlayModeIndex];
+            rulePage.transform.localScale = new Vector3(1, 0, 1);
+            rulePage.SetActive(true);
+            GameManager.SESource.clip = GameManager.SEClip[4];
+            GameManager.SESource.Play();
+            yield return StartCoroutine(ActiveTutorialPanel(rulePage, 0.5f));
+            StartCoroutine(ExpandTutorialPanel(rulePage, 0.5f));
+            yield return new WaitForSeconds(9f);
+            yield return StartCoroutine(AnExpandTutorialPanel(rulePage, 0.5f));
+            yield return StartCoroutine(AnActiveTutorialPanel(rulePage, 0.5f));
+            rulePage.SetActive(false);
+        }
         GameObject countDown = Instantiate(countDownPrefab, canvas.transform);
         Destroy(countDown, 1.6f);
         yield return new WaitForSeconds(1.8f);
@@ -202,17 +200,9 @@ public class AudioManager : MonoBehaviour
         }
         yield return new WaitUntil(() => GameManager.BGMSource.isPlaying == true);
 
-        if (GameManager.CaluclatePlayModeIndex == 1)
-        {
-            yield return new WaitForSeconds(2f);
-            yield return new WaitUntil(() => GameManager.BGMSource.isPlaying == false); 
-            yield return new WaitForSeconds(2f);
-            yield return new WaitUntil(() => GameManager.BGMSource.isPlaying == false); 
-            yield return new WaitForSeconds(2f);
-        }
-        yield return new WaitUntil(() => GameManager.BGMSource.isPlaying == false); 
-        yield return new WaitForSeconds(0.5f);
-        yield return new WaitUntil(() => GameManager.BGMSource.isPlaying == false); 
+        yield return new WaitForSeconds(20f);
+        yield return new WaitUntil(() => GameManager.BGMSource.time < 2f);
+        GameManager.BGMSource.volume = 0;
 
         GameManager.IsInvalid = true;
         rightBladeRigidbody.isKinematic = true;
@@ -239,26 +229,29 @@ public class AudioManager : MonoBehaviour
         {
             modeMultiplier = 1.2f;
         }
-        float exellentPercent = (float)successCount / NotesObj.Count * 100;
-        if (exellentPercent == 100)
+        float successPercent = (float)successCount / NotesObj.Count * 100;
+        float exellentPercent = (float)exellentCount / NotesObj.Count * 100;
+        if (successPercent == 100
+            &&
+            exellentCount == 100)
         {
             rank = Rank.SSS;
             rankImageObject = rankImageObjects[0];
             rankMultiplier = 2f;
         }
-        else if (exellentPercent >= 95)
+        else if (successPercent >= 95)
         {
             rank = Rank.S;
             rankImageObject = rankImageObjects[1];
             rankMultiplier = 1.8f;
         }
-        else if (exellentPercent >= 80)
+        else if (successPercent >= 80)
         {
             rank = Rank.A;
             rankImageObject = rankImageObjects[2];
             rankMultiplier = 1.5f;
         }
-        else if (exellentPercent >= 50)
+        else if (successPercent >= 50)
         {
             rank = Rank.B;
             rankImageObject = rankImageObjects[3];
@@ -291,6 +284,7 @@ public class AudioManager : MonoBehaviour
         int finalScore = Mathf.FloorToInt(totalScore * rankMultiplier);
         finalScore = Mathf.FloorToInt(finalScore * modeMultiplier);
         missCount += NotesObj.Count - successCount;
+        allYellowCount = allYellowCount / 2;
 
         string[] resultTexts = {$"{GameManager.PlayModes[GameManager.CaluclatePlayModeIndex]}",
                                $"× {rankMultiplier.ToString("F1")}",
@@ -383,27 +377,6 @@ public class AudioManager : MonoBehaviour
 
     IEnumerator PlayTutorial()
     {
-        if (GameManager.IsDebugMode)
-        {
-            tutorialPanel.SetActive(true);
-            GameObject tutorialPage99 = tutorialPanel.transform.GetChild(8).gameObject;
-            tutorialPage99.transform.localScale = new Vector3(1, 0, 1);
-            tutorialPage99.SetActive(true);
-            GameManager.SESource.clip = GameManager.SEClip[4];
-            GameManager.SESource.Play();
-            yield return StartCoroutine(ActiveTutorialPanel(tutorialPage99, 0.5f));
-            StartCoroutine(ExpandTutorialPanel(tutorialPage99, 0.5f));
-            spaceKeyUI.transform.localPosition = new Vector3(-895, -40, 0);
-            rKeyUI.transform.localPosition = new Vector3(-700, -40, 0);
-            yield return new WaitForSeconds(0.5f);
-            activeSpaceKeyUI = StartCoroutine(ActiveKeyUI(spaceKeyUI, 2f));
-            activeRKeyUI = StartCoroutine(ActiveKeyUI(rKeyUI, 2f));
-
-            tutorialJudgs[0] = StartCoroutine(BGMChoice());
-            tutorialJudgs[1] = StartCoroutine(ReturnChoice());
-            GameManager.IsTutorial = false;
-            yield break;
-        }
         GameObject tutorialPage1 = tutorialPanel.transform.GetChild(0).gameObject;
         tutorialPage1.transform.localScale = new Vector3(1, 0, 1);
         tutorialPanel.SetActive(true);
@@ -542,6 +515,7 @@ public class AudioManager : MonoBehaviour
         StartCoroutine(ExpandTutorialPanel(tutorialPage8, 0.5f));
         yield return new WaitForSeconds(2f);
         activeSpaceKeyUI = StartCoroutine(ActiveKeyUI(spaceKeyUI, 2f));
+        IsTutorialPause = true;
         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));//
         StopCoroutine(activeSpaceKeyUI);
         spaceKeyUI.SetActive(false);
@@ -555,8 +529,6 @@ public class AudioManager : MonoBehaviour
         GameManager.SESource.Play();
         yield return StartCoroutine(ActiveTutorialPanel(tutorialPage9, 0.5f));
         StartCoroutine(ExpandTutorialPanel(tutorialPage9, 0.5f));
-        spaceKeyUI.transform.localPosition = new Vector3(-895, -40, 0);
-        rKeyUI.transform.localPosition = new Vector3(-700, -40, 0);
         yield return new WaitForSeconds(0.5f);
         activeSpaceKeyUI = StartCoroutine(ActiveKeyUI(spaceKeyUI, 2f));
         activeRKeyUI = StartCoroutine(ActiveKeyUI(rKeyUI, 2f));
@@ -665,7 +637,6 @@ public class AudioManager : MonoBehaviour
                         ||
                         notePrefabInedex == 6)
                 {
-                    Debug.Log(notePrefabInedex);
                     GameObject noteObject = Instantiate(notesPrefab[notePrefabInedex], new Vector3(notesPrefab[notePrefabInedex].transform.position.x, notesPrefab[notePrefabInedex].transform.position.y, 10), Quaternion.identity);
                     noteObject.transform.localScale = new Vector3(noteObject.transform.localScale.x, noteObject.transform.localScale.y, noteObject.transform.localScale.z * scaleMultiplier);
                     Destroy(noteObject, 7f);
@@ -743,38 +714,98 @@ public class AudioManager : MonoBehaviour
     IEnumerator ChoiceYes()
     {
         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
-
+        StopCoroutine(returnOrStay[1]);
         GameManager.SESource.clip = GameManager.SEClip[4];
         GameManager.SESource.Play();
         StopCoroutine(activeSpaceKeyUI);
         StopCoroutine(activeRKeyUI);
         fSpaceKeyUI.SetActive(false);
         fRKeyUI.SetActive(false);
+        GameManager.BGMSource.Stop();
         StartCoroutine(inGameManager.BlackOut("ReturnTitle"));
-        foreach (var coroutine in returnOrStay)
-        {
-            StopCoroutine(coroutine);
-        }
+        GameManager.IsPause = false;
     }
     IEnumerator ChoiceNo()
     {
         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.R));
-
-        GameObject tutorialPage10 = tutorialPanel.transform.GetChild(9).gameObject; //確認画面を閉じる
-        GameManager.SESource.clip = GameManager.SEClip[4];                         
-        GameManager.SESource.Play();
-        yield return StartCoroutine(AnExpandTutorialPanel(tutorialPage10, 0.5f));
-        StartCoroutine(AnActiveTutorialPanel(tutorialPage10, 0.5f));
-        tutorialPage10.SetActive(false);
-        StopCoroutine(activeSpaceKeyUI);
-        StopCoroutine(activeRKeyUI);
-        fSpaceKeyUI.SetActive(false);
-        fRKeyUI.SetActive(false);
-        tutorialJudgs[0] = StartCoroutine(BGMChoice());
-        tutorialJudgs[1] = StartCoroutine(ReturnChoice());
-        foreach (var coroutine in returnOrStay)
+        StopCoroutine(returnOrStay[0]);
+        if (IsTutorialPause
+            &&
+            !pausePanel.activeSelf)
         {
-            StopCoroutine(coroutine);
+            GameObject tutorialPage10 = tutorialPanel.transform.GetChild(9).gameObject; //確認画面を閉じる
+            GameManager.SESource.clip = GameManager.SEClip[4];
+            GameManager.SESource.Play();
+            StopCoroutine(activeSpaceKeyUI);
+            StopCoroutine(activeRKeyUI);
+            fSpaceKeyUI.SetActive(false);
+            fRKeyUI.SetActive(false);
+            yield return StartCoroutine(AnExpandTutorialPanel(tutorialPage10, 0.5f));
+            StartCoroutine(AnActiveTutorialPanel(tutorialPage10, 0.5f));
+            tutorialPage10.SetActive(false);
+            tutorialJudgs[0] = StartCoroutine(BGMChoice());
+            tutorialJudgs[1] = StartCoroutine(ReturnChoice());
+            foreach (var coroutine in returnOrStay)
+            {
+                StopCoroutine(coroutine);
+            }
+            GameManager.IsPause = false;
+        }
+        else if (!IsTutorialPause
+            &&
+            pausePanel.activeSelf)
+        {
+            GameManager.SESource.clip = GameManager.SEClip[4];
+            GameManager.SESource.Play();
+            StopCoroutine(activeSpaceKeyUI);
+            StopCoroutine(activeRKeyUI);
+            fSpaceKeyUI.SetActive(false);
+            fRKeyUI.SetActive(false);
+            yield return StartCoroutine(AnExpandTutorialPanel(pausePanel, 0.5f));
+            StartCoroutine(AnActiveTutorialPanel(pausePanel, 0.5f));
+            pausePanel.SetActive(false);
+            yield return new WaitForSeconds(0.5f);
+            FlowingController[] flowingControllerObjs = FindObjectsOfType<FlowingController>();
+            for (int i = 0; i < flowingControllerObjs.Length; i++)
+            {
+                flowingControllerObjs[i].enabled = true;
+            }
+            if (!GameManager.IsTutorial)
+            {
+                GameManager.BGMSource.Play();
+            }
+            GameManager.IsPause = false;
+        }
+    }
+
+    public IEnumerator PauseController()
+    {
+        if (IsTutorialPause
+            ||
+            GameManager.IsPause)
+        {
+            yield break;
+        }
+
+        if (!GameManager.IsPause)
+        {
+            GameManager.IsPause = true;
+            GameManager.BGMSource.Pause();
+            FlowingController[] flowingControllerObjs = FindObjectsOfType<FlowingController>();
+            for (int i = 0; i < flowingControllerObjs.Length; i++)
+            {
+                flowingControllerObjs[i].enabled = false;
+            }
+            pausePanel.transform.localScale = new Vector3(1, 0, 1); //ポーズ画面を開く
+            pausePanel.SetActive(true);
+            GameManager.SESource.clip = GameManager.SEClip[4];
+            GameManager.SESource.Play();
+            yield return StartCoroutine(ActiveTutorialPanel(pausePanel, 0.5f));
+            yield return StartCoroutine(ExpandTutorialPanel(pausePanel, 0.5f));
+            activeSpaceKeyUI = StartCoroutine(ActiveKeyUI(fSpaceKeyUI, 2f));
+            activeRKeyUI = StartCoroutine(ActiveKeyUI(fRKeyUI, 2f));
+            returnOrStay[0] = StartCoroutine(ChoiceYes()); //
+            returnOrStay[1] = StartCoroutine(ChoiceNo());  //
         }
     }
 }
